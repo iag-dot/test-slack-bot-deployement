@@ -1,143 +1,153 @@
-# 🚀 Inagiffy Bot 
+# Inagiffy Bot - Client-Focused Task & Review Management
 
-A Slack bot that helps manage newsletters and more through different workflow stages with a casual, GenZ-friendly vibe.
+Inagiffy Bot is a Slack bot designed to help teams manage tasks, content reviews, and client workflows. It provides channel-specific management, easy task assignment and tracking, structured review processes, and daily team reports.
 
-![Inagiffy Bot Banner](https://via.placeholder.com/800x200/0d1117/ffffff?text=Inagiffy+Bot)
+## Features
 
-## ✨ Features
+- **Client-specific workflows**: Manage tasks and reviews per client channel
+- **Task management**: Assign, track, and complete tasks with priorities and deadlines
+- **Review system**: Request reviews from team members with approval workflows
+- **Status tracking**: Check content status by client (draft, design, review, approved, published)
+- **Reminders**: Automatic notifications for upcoming deadlines
+- **Daily reports**: End-of-day summaries of team activities
 
-- Assign tasks to team members with priority levels
-- See existing workload before assigning new tasks
-- Support for urgent tasks with the `-urgent` flag
-- Automatic deadline calculation (or set custom deadlines)
-- Task reminders before deadlines
-- List tasks with optional filters
-- Mark tasks as completed by ID or name
-- Notifications with a fun, casual tone
-- Support for different teams: content, product, design, ops
+## Command Reference
 
-## 📋 Commands
+### Task Management
 
-### `/assign @username task description [options]`
-
-Drop a task on someone's plate
+#### Assign Tasks
+```
+/assign @username [task description] [options]
+```
 
 **Options:**
-- `-urgent` - For the ASAP stuff (1 day deadline)
-- `-team=teamname` - Pick a squad (content, product, design, ops)
-- `-deadline=YYYY-MM-DD` - Custom due date
+- `-urgent` - Set as high priority with urgent deadline
+- `-team=teamname` - Specify team (content, design, product, ops)
+- `-priority=level` - Set priority (urgent, high, medium, low)
+- `-deadline=YYYY-MM-DD` - Set custom due date
+- `-client=clientname` - Associate with specific client
 
 **Examples:**
+- `/assign @sarah Write Q2 marketing report -team=content`
+- `/assign @john Update homepage design -urgent`
+- `/assign @alex Finalize budget -team=ops -deadline=2025-05-15`
+
+#### View Tasks
 ```
-/assign @designer create new logo for homepage
-/assign @writer draft blog post about new features -team=content
-/assign @developer fix login bug -urgent
-/assign @marketer create Q2 campaign -deadline=2025-06-30
+/tasks [filters]
 ```
 
-### `/tasks [filters]`
-
-Check what's on deck
+**Filter options:**
+- `@username` - View a specific user's tasks
+- `team=teamname` - Filter by team (content, design, product, ops)
+- `priority=level` - Filter by priority (urgent, high, medium, low)
+- `status=state` - Filter by status (pending, in_progress, completed)
+- `client=clientname` - Filter by client
 
 **Examples:**
-```
-/tasks                       // See all tasks
-/tasks @username             // Check someone's workload
-/tasks stage=design          // Filter by team
-/tasks priority=high         // Filter by priority
-/tasks status=pending        // Filter by status
-```
+- `/tasks @david` - View David's tasks
+- `/tasks team=design priority=high` - View high priority design tasks
+- `/tasks client=acme` - View all tasks for Acme client
 
-### `/markdone [taskId or task name]`
-
-Claim your W when you finish a task
+#### Complete Tasks
+```
+/done [task description]
+```
 
 **Examples:**
+- `/done Write Q2 marketing report` - Complete task by description
+- `/done homepage design` - Complete task by partial description
+
+### Content Review System
+
+#### Request Reviews
 ```
-/markdone 1682514937123      // Complete by ID
-/markdone newsletter draft   // Complete by task name (partial matches work)
-```
-
-### `/taskhelp`
-
-Get a refresher on all the commands
-
-## 🔧 Setup
-
-### Prerequisites
-- Node.js (LTS version recommended)
-- PostgreSQL database
-- Slack workspace with permission to add apps
-
-### Installation
-
-1. Clone this repository
-```bash
-git clone https://github.com/your-username/inagiffy-bot.git
-cd inagiffy-bot
+/review [title] [options]
 ```
 
-2. Install dependencies
-```bash
-npm install
+**Options:**
+- `#channel` - Specify client channel
+- `@reviewer1 @reviewer2` - Tag reviewers directly
+- `-url=link` - Link to the content being reviewed
+- `-deadline=YYYY-MM-DD` - Set review deadline
+- `-status=stage` - Set initial status (draft, design, in_review, approved, published)
+
+**Examples:**
+- `/review April Newsletter #sunroof @sarah @john -url=https://docs.google.com/doc`
+- `/review Homepage Redesign @alex -status=design -deadline=2025-05-10`
+
+#### Check Content Status
+```
+/client-status [client]
 ```
 
-3. Create `.env` file with your credentials
-```
-SLACK_BOT_TOKEN=xoxb-your-bot-token
-SLACK_SIGNING_SECRET=your-signing-secret
-SLACK_APP_TOKEN=xapp-your-app-token
-DATABASE_URL=postgresql://username:password@localhost:5432/inagiffy
-PORT=3000
-```
+**Examples:**
+- `/client-status` - Check status for current channel
+- `/client-status #sunroof` - Check status for Sunroof client channel
+- `/client-status acme` - Check status for Acme client by name
 
-4. Set up the database
-```bash
-npx prisma migrate dev --name init
+#### Approve Content
+```
+/approve [review title or ID] [optional comment]
 ```
 
-5. Start the bot
-```bash
-npm start
+**Examples:**
+- `/approve April Newsletter` - Approve by title
+- `/approve #acme Homepage Redesign` - Approve with client prefix
+- `/approve Q2 Report "Looks great, ready to publish"` - Include approval comment
+
+### Help Command
 ```
-
-For development:
-```bash
-npm run dev
+/inagiffyhelp
 ```
+Displays a comprehensive guide to all bot commands.
 
+## Direct Message Usage
 
-## 🔄 Smart Team Detection
+You can also interact with Inagiffy Bot in direct messages using these command formats (without the slash):
 
-Even without specifying a team, the bot automatically detects the team based on keywords in the task:
+- `assign @username [task] [options]`
+- `tasks [filters]`
+- `done [task description]`
+- `review [title] [options]`
+- `status [client]`
+- `help` - Show command guide
 
-- **Content team**: writing, blog, article, post
-- **Product team**: feature, roadmap, spec, dev
-- **Design team**: ui, ux, mockup, wireframe
-- **Ops team**: operation, logistics, process
+## Automatic Features
 
-## 📦 Project Structure
+- **Task Reminders**: Notifies assignees 1 hour before task deadlines
+- **Daily Team Reports**: Sends end-of-day (5 PM) summaries to team channels
+- **Review Notifications**: Alerts reviewers when they're requested to review content
 
-```
-inagiffy-bot/
-├── .env                   # Environment variables
-├── app.js                 # Main application code
-├── message-formatters.js  # Message formatting functions
-├── package.json           # NPM package configuration
-└── prisma/
-    └── schema.prisma      # Database schema
-```
+## Setup
 
+1. Install required dependencies:
+   ```
+   npm install
+   ```
 
+2. Set up the PostgreSQL database and run migrations:
+   ```
+   npx prisma migrate dev
+   ```
 
-## 🤝 Contributing
+3. Configure environment variables:
+   ```
+   SLACK_BOT_TOKEN=your-bot-token
+   SLACK_SIGNING_SECRET=your-signing-secret
+   SLACK_APP_TOKEN=your-app-token
+   DATABASE_URL=your-database-url
+   ```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+4. Start the bot:
+   ```
+   npm start
+   ```
 
-## 📄 License
+## Project Structure
 
-[MIT](LICENSE)
-
----
-
-Made with ✨ for your newsletter workflow
+- `app.js` - Main bot application
+- `schema.prisma` - Database schema
+- `commands/` - Command handlers
+- `services/` - Business logic
+- `utils/` - Helper functions

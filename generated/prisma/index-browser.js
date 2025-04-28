@@ -120,11 +120,14 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.TaskScalarFieldEnum = {
   id: 'id',
   taskId: 'taskId',
-  stage: 'stage',
+  title: 'title',
+  description: 'description',
   priority: 'priority',
   assignee: 'assignee',
-  task: 'task',
+  creator: 'creator',
   channel: 'channel',
+  client: 'client',
+  team: 'team',
   createdAt: 'createdAt',
   deadline: 'deadline',
   status: 'status',
@@ -132,9 +135,45 @@ exports.Prisma.TaskScalarFieldEnum = {
   reminderSent: 'reminderSent'
 };
 
+exports.Prisma.ReviewScalarFieldEnum = {
+  id: 'id',
+  reviewId: 'reviewId',
+  title: 'title',
+  description: 'description',
+  creator: 'creator',
+  reviewers: 'reviewers',
+  channel: 'channel',
+  client: 'client',
+  url: 'url',
+  status: 'status',
+  createdAt: 'createdAt',
+  deadline: 'deadline',
+  completedAt: 'completedAt'
+};
+
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  reviewId: 'reviewId',
+  reviewer: 'reviewer',
+  comment: 'comment',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DailyReportScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  teamReports: 'teamReports',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -147,9 +186,18 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
 
 exports.Prisma.ModelName = {
-  Task: 'Task'
+  Task: 'Task',
+  Review: 'Review',
+  Feedback: 'Feedback',
+  DailyReport: 'DailyReport'
 };
 
 /**

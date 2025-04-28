@@ -1,6 +1,5 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
@@ -13,17 +12,55 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model Task {
-  id           Int       @id @default(autoincrement())
-  taskId       String    @unique
-  stage        String
-  priority     String
-  assignee     String
-  task         String
-  channel      String
-  createdAt    DateTime  @default(now())
-  deadline     DateTime
-  status       String
-  completedAt  DateTime?
-  reminderSent Boolean   @default(false)
+  id          Int       @id @default(autoincrement())
+  taskId      String    @unique
+  title       String
+  description String
+  priority    String    // "urgent", "high", "medium", "low"
+  assignee    String    // Slack user ID
+  creator     String    // Slack user ID of who created the task
+  channel     String    // Slack channel ID where the task was created
+  client      String?   // Client name derived from channel or provided
+  team        String    // "content", "design", "product", "ops"
+  createdAt   DateTime  @default(now())
+  deadline    DateTime
+  status      String    // "pending", "in_progress", "completed"
+  completedAt DateTime?
+  reminderSent Boolean  @default(false)
+}
+
+model Review {
+  id          Int       @id @default(autoincrement())
+  reviewId    String    @unique
+  title       String    // Title of the item being reviewed
+  description String?   // Additional details
+  creator     String    // Slack user ID of who created the review
+  reviewers   String[]  // Array of Slack user IDs
+  channel     String    // Slack channel ID
+  client      String    // Client name derived from channel or explicitly provided
+  url         String?   // Optional link to the item being reviewed
+  status      String    // "draft", "design", "in_review", "approved", "published"
+  createdAt   DateTime  @default(now())
+  deadline    DateTime?
+  completedAt DateTime?
+  feedbacks   Feedback[]
+}
+
+model Feedback {
+  id          Int       @id @default(autoincrement())
+  reviewId    Int
+  review      Review    @relation(fields: [reviewId], references: [id])
+  reviewer    String    // Slack user ID
+  comment     String
+  status      String    // "requested_changes", "approved"
+  createdAt   DateTime  @default(now())
+}
+
+model DailyReport {
+  id          Int       @id @default(autoincrement())
+  date        DateTime  @unique
+  teamReports Json      // Structured JSON with team activity
+  createdAt   DateTime  @default(now())
 }
