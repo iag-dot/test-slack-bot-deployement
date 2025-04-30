@@ -44,6 +44,7 @@ async function extractClientFromChannel(channelMention, client) {
   
   // Extract channel name or ID
   let channelId;
+  let channelName = null;
   if (channelMention.startsWith('#C')) {
     // It's a channel ID
     channelId = channelMention.substring(1);
@@ -54,6 +55,7 @@ async function extractClientFromChannel(channelMention, client) {
       const channel = result.channels.find(c => c.name === channelMention.substring(1));
       if (channel) {
         channelId = channel.id;
+        channelName = channel.name;
       } else {
         return channelMention.substring(1);
       }
@@ -66,31 +68,45 @@ async function extractClientFromChannel(channelMention, client) {
   // Try to get channel info to extract purpose (which might contain client name)
   try {
     const info = await client.conversations.info({ channel: channelId });
+    channelName = info.channel.name;
+    
     if (info.channel.purpose && info.channel.purpose.value) {
       // Try to extract client name from purpose
       const purpose = info.channel.purpose.value.toLowerCase();
       const clientMatch = purpose.match(/client:\s*([^,]+)/i);
       if (clientMatch && clientMatch[1]) {
-        return clientMatch[1].trim();
+        return {
+          client: clientMatch[1].trim(),
+          channelName: channelName
+        };
       }
     }
     
     // If no client found in purpose, check if channel name starts with "client-"
     if (info.channel.name.startsWith('client-')) {
-      return info.channel.name.substring(7); // Remove "client-" prefix
+      return {
+        client: info.channel.name.substring(7), // Remove "client-" prefix
+        channelName: channelName
+      };
     }
     
     // Otherwise, just use the channel name
-    return info.channel.name;
+    return {
+      client: info.channel.name,
+      channelName: channelName
+    };
   } catch (error) {
     console.error('Error getting channel info:', error);
-    return channelMention.substring(1); // Just use the channel name without #
+    return {
+      client: channelMention.substring(1), // Just use the channel name without #
+      channelName: channelName || channelMention.substring(1)
+    };
   }
 }
 
 // Create a new review request
-async function createReview(title, description, creator, reviewers, channel, client, url = null, deadline = null, initialStatus = "in_review") {
-  console.log(`Creating review: title=${title}, creator=${creator}, reviewers=${reviewers.join(',')}, client=${client}, initialStatus=${initialStatus}`);
+async function createReview(title, description, creatorId, creatorName, reviewerIds, reviewerNames, channel, channelName, client, url = null, deadline = null, initialStatus = "in_review") {
+  console.log(`Creating review: title=${title}, creator=${creatorId}, reviewers=${reviewerIds.join(',')}, client=${client}, initialStatus=${initialStatus}`);
   
   // Validate status
   const validStatuses = ["draft", "design", "in_review", "approved", "published"];
@@ -120,9 +136,12 @@ async function createReview(title, description, creator, reviewers, channel, cli
         reviewId: 'review_' + Date.now().toString(),
         title,
         description,
-        creator,
-        reviewers,
+        creatorId,
+        creatorName,
+        reviewerIds,
+        reviewerNames,
         channel,
+        channelName,
         client,
         url,
         status: initialStatus,
@@ -151,12 +170,12 @@ async function getReviews(filters = {}) {
   if (filters.channel) {
     where.channel = filters.channel;
   }
-  if (filters.creator) {
-    where.creator = filters.creator;
+  if (filters.creatorId) {
+    where.creatorId = filters.creatorId;
   }
-  if (filters.reviewer) {
-    where.reviewers = {
-      has: filters.reviewer
+  if (filters.reviewerId) {
+    where.reviewerIds = {
+      has: filters.reviewerId
     };
   }
   if (filters.status) {
@@ -266,8 +285,8 @@ async function getReviewById(reviewId) {
 }
 
 // Add feedback to a review
-async function addFeedback(reviewId, reviewer, comment, status, client = null) {
-  console.log(`Adding feedback to review ${reviewId} from ${reviewer}: ${status}`);
+async function addFeedback(reviewId, reviewerId, reviewerName, comment, status, client = null) {
+  console.log(`Adding feedback to review ${reviewId} from ${reviewerId} (${reviewerName}): ${status}`);
   
   try {
     const review = await getReviewById(reviewId);
@@ -280,7 +299,7 @@ async function addFeedback(reviewId, reviewer, comment, status, client = null) {
     }
     
     // Check if reviewer is authorized
-    if (!review.reviewers.includes(reviewer)) {
+    if (!review.reviewerIds.includes(reviewerId)) {
       return {
         success: false,
         message: "You are not authorized to review this item"
@@ -291,7 +310,8 @@ async function addFeedback(reviewId, reviewer, comment, status, client = null) {
     await prisma.feedback.create({
       data: {
         reviewId: review.id,
-        reviewer,
+        reviewerId,
+        reviewerName,
         comment,
         status,
         createdAt: new Date()
@@ -325,26 +345,36 @@ async function addFeedback(reviewId, reviewer, comment, status, client = null) {
 }
 
 // Approve a review directly (shorthand for positive feedback)
-async function approveReview(reviewId, reviewer, comment = "Approved", client = null) {
-  console.log(`Approving review ${reviewId} by ${reviewer}`);
+// Fix for the approveReview function in reviewService.js
+
+async function approveReview(reviewId, reviewerId, reviewerName, comment = "Approved", client = null) {
+  console.log(`Approving review ${reviewId} by ${reviewerId} (${reviewerName})`);
   
   try {
-    // Add the feedback
+    const review = await getReviewById(reviewId);
+    
+    if (!review) {
+      return {
+        success: false,
+        message: "Review not found"
+      };
+    }
+    
+    // Add the feedback - FIXED to ensure comment is a string
     await prisma.feedback.create({
       data: {
-        reviewId: (await getReviewById(reviewId)).id,
-        reviewer,
-        comment,
+        reviewId: review.id,
+        reviewerId,
+        reviewerName,
+        // Make sure comment is a string
+        comment: typeof comment === 'string' ? comment : "Approved",
         status: "approved",
         createdAt: new Date()
       }
     });
     
     // Update the review status - now passing the client so we can send notifications
-    const updatedReview = await updateReviewStatus(
-      (await getReviewById(reviewId)).id, 
-      client
-    );
+    const updatedReview = await updateReviewStatus(review.id, client);
     
     if (!updatedReview) {
       return {
@@ -356,12 +386,12 @@ async function approveReview(reviewId, reviewer, comment = "Approved", client = 
     // If the review is not in a completed state yet, notify the creator
     if (updatedReview.status !== "approved" && updatedReview.status !== "published" && client) {
       // Notify the creator if different from reviewer
-      if (updatedReview.creator !== reviewer) {
+      if (updatedReview.creatorId !== reviewerId) {
         try {
           await client.chat.postMessage({
-            channel: updatedReview.creator,
-            blocks: formatReviewStatusUpdate(updatedReview, reviewer),
-            text: `<@${reviewer}> approved your content "${updatedReview.title}"`
+            channel: updatedReview.creatorId,
+            blocks: formatReviewStatusUpdate(updatedReview, reviewerId, reviewerName),
+            text: `<@${reviewerId}> approved your content "${updatedReview.title}"`
           });
         } catch (error) {
           console.error(`Error sending approval notification to creator: ${error.message}`);
@@ -402,15 +432,15 @@ async function updateReviewStatus(reviewId, client = null) {
     // Get the most recent feedback from each reviewer
     const reviewerFeedback = {};
     review.feedbacks.forEach(feedback => {
-      if (!reviewerFeedback[feedback.reviewer] || 
-          new Date(feedback.createdAt) > new Date(reviewerFeedback[feedback.reviewer].createdAt)) {
-        reviewerFeedback[feedback.reviewer] = feedback;
+      if (!reviewerFeedback[feedback.reviewerId] || 
+          new Date(feedback.createdAt) > new Date(reviewerFeedback[feedback.reviewerId].createdAt)) {
+        reviewerFeedback[feedback.reviewerId] = feedback;
       }
     });
     
     // Check if all reviewers have approved
-    const allApproved = review.reviewers.every(reviewer => {
-      return reviewerFeedback[reviewer] && reviewerFeedback[reviewer].status === "approved";
+    const allApproved = review.reviewerIds.every(reviewerId => {
+      return reviewerFeedback[reviewerId] && reviewerFeedback[reviewerId].status === "approved";
     });
     
     // Update status if necessary
@@ -453,12 +483,15 @@ async function updateReviewStatus(reviewId, client = null) {
           // Get the last reviewer who approved
           const lastApprover = review.feedbacks
             .filter(f => f.status === "approved")
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]?.reviewer || "Unknown";
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || {};
+          
+          const lastApproverId = lastApprover.reviewerId || "Unknown";
+          const lastApproverName = lastApprover.reviewerName || "Unknown User";
           
           // Send notification to the channel
           await client.chat.postMessage({
             channel: review.channel,
-            blocks: formatReviewCompletionNotification(updatedReview, lastApprover),
+            blocks: formatReviewCompletionNotification(updatedReview, lastApproverId, lastApproverName),
             text: `Review for "${updatedReview.title}" is now complete and approved!`
           });
           
@@ -487,8 +520,8 @@ async function updateReviewStatus(reviewId, client = null) {
 }
 
 // Update review status manually and send completion notification if appropriate
-async function updateReviewStatusManually(reviewId, newStatus, userId, client = null) {
-  console.log(`Manually updating review ${reviewId} to status ${newStatus} by ${userId}`);
+async function updateReviewStatusManually(reviewId, newStatus, userId, userName, client = null) {
+  console.log(`Manually updating review ${reviewId} to status ${newStatus} by ${userId} (${userName})`);
   
   try {
     const review = await getReviewById(reviewId);
@@ -501,7 +534,7 @@ async function updateReviewStatusManually(reviewId, newStatus, userId, client = 
     }
     
     // Check if user is authorized (creator or reviewer)
-    if (review.creator !== userId && !review.reviewers.includes(userId)) {
+    if (review.creatorId !== userId && !review.reviewerIds.includes(userId)) {
       return {
         success: false,
         message: "You are not authorized to update this review"
@@ -550,7 +583,7 @@ async function updateReviewStatusManually(reviewId, newStatus, userId, client = 
       try {
         await client.chat.postMessage({
           channel: updatedReview.channel,
-          blocks: formatReviewCompletionNotification(updatedReview, userId),
+          blocks: formatReviewCompletionNotification(updatedReview, userId, userName),
           text: `Review for "${updatedReview.title}" is now complete and ${newStatus}!`
         });
         
@@ -605,7 +638,7 @@ function formatReviewRequestMessage(review) {
         },
         {
           type: "mrkdwn",
-          text: `*Created by:*\n<@${review.creator}>`
+          text: `*Created by:*\n<@${review.creatorId}> (${review.creatorName})`
         },
         {
           type: "mrkdwn",
@@ -627,7 +660,10 @@ function formatReviewRequestMessage(review) {
   }
   
   // Add reviewers section
-  const reviewerMentions = review.reviewers.map(id => `<@${id}>`).join(', ');
+  const reviewerMentions = review.reviewerIds.map((id, index) => 
+    `<@${id}> (${review.reviewerNames[index] || 'Unknown'})`
+  ).join(', ');
+  
   blocks.push({
     type: "section",
     text: {
@@ -717,7 +753,7 @@ function formatReviewNotification(review) {
     elements: [
       {
         type: "mrkdwn",
-        text: `Requested by <@${review.creator}> in <#${review.channel}>`
+        text: `Requested by <@${review.creatorId}> (${review.creatorName}) in <#${review.channel}>`
       }
     ]
   });
@@ -726,7 +762,7 @@ function formatReviewNotification(review) {
 }
 
 // Format feedback message
-function formatReviewFeedbackMessage(review, userId, status) {
+function formatReviewFeedbackMessage(review, userId, userName, status) {
   const blocks = [
     {
       type: "header",
@@ -747,7 +783,7 @@ function formatReviewFeedbackMessage(review, userId, status) {
   
   // Add the feedback that was just given
   const feedback = review.feedbacks.find(f => 
-    f.reviewer === userId && 
+    f.reviewerId === userId && 
     (status === "approved" ? f.status === "approved" : f.status === "requested_changes")
   );
   
@@ -776,7 +812,7 @@ function formatReviewFeedbackMessage(review, userId, status) {
 }
 
 // Format a notification about feedback to send to the creator/channel
-function formatReviewFeedbackNotification(review, reviewerId, feedback) {
+function formatReviewFeedbackNotification(review, reviewerId, reviewerName, feedback) {
   const blocks = [
     {
       type: "header",
@@ -790,7 +826,7 @@ function formatReviewFeedbackNotification(review, reviewerId, feedback) {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*${review.title}*\n<@${reviewerId}> has requested changes:`
+        text: `*${review.title}*\n<@${reviewerId}> (${reviewerName}) has requested changes:`
       }
     },
     {
@@ -815,7 +851,7 @@ function formatReviewFeedbackNotification(review, reviewerId, feedback) {
 }
 
 // Format a notification about review status update
-function formatReviewStatusUpdate(review, userId) {
+function formatReviewStatusUpdate(review, userId, userName) {
   const blocks = [
     {
       type: "header",
@@ -829,7 +865,7 @@ function formatReviewStatusUpdate(review, userId) {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*${review.title}*\nThe review has been ${review.status.toLowerCase()} by <@${userId}>.`
+        text: `*${review.title}*\nThe review has been ${review.status.toLowerCase()} by <@${userId}> (${userName}).`
       }
     }
   ];
@@ -847,10 +883,10 @@ function formatReviewStatusUpdate(review, userId) {
   
   // Add all reviewer statuses
   const reviewerStatuses = [];
-  review.reviewers.forEach(reviewer => {
+  review.reviewerIds.forEach((reviewer, index) => {
     // Find most recent feedback from this reviewer
     const feedback = review.feedbacks
-      .filter(f => f.reviewer === reviewer)
+      .filter(f => f.reviewerId === reviewer)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
     
     let status = "Pending";
@@ -858,7 +894,7 @@ function formatReviewStatusUpdate(review, userId) {
       status = feedback.status === "approved" ? "✅ Approved" : "⚠️ Requested Changes";
     }
     
-    reviewerStatuses.push(`<@${reviewer}>: ${status}`);
+    reviewerStatuses.push(`<@${reviewer}> (${review.reviewerNames[index] || 'Unknown'}): ${status}`);
   });
   
   if (reviewerStatuses.length > 0) {
@@ -875,7 +911,7 @@ function formatReviewStatusUpdate(review, userId) {
 }
 
 // Format review completion notification
-function formatReviewCompletionNotification(review, approverId) {
+function formatReviewCompletionNotification(review, approverId, approverName) {
   const blocks = [
     {
       type: "header",
@@ -919,7 +955,10 @@ function formatReviewCompletionNotification(review, approverId) {
   }
   
   // Add reviewer information
-  const allReviewers = review.reviewers.map(id => `<@${id}>`).join(', ');
+  const allReviewers = review.reviewerIds.map((id, index) => 
+    `<@${id}> (${review.reviewerNames[index] || 'Unknown'})`
+  ).join(', ');
+  
   blocks.push({
     type: "section",
     text: {
@@ -934,7 +973,7 @@ function formatReviewCompletionNotification(review, approverId) {
     elements: [
       {
         type: "mrkdwn",
-        text: `Final approval by <@${approverId}> | Created by <@${review.creator}>`
+        text: `Final approval by <@${approverId}> (${approverName}) | Created by <@${review.creatorId}> (${review.creatorName})`
       }
     ]
   });
@@ -998,10 +1037,10 @@ function formatClientStatus(client, reviews) {
       });
       
       statusGroups[status].forEach(review => {
-        const reviewerCount = review.reviewers.length;
+        const reviewerCount = review.reviewerIds.length;
         const approvalCount = review.feedbacks
           .filter(f => f.status === "approved")
-          .map(f => f.reviewer)
+          .map(f => f.reviewerId)
           .filter((reviewer, index, self) => self.indexOf(reviewer) === index)
           .length;
           
@@ -1009,7 +1048,7 @@ function formatClientStatus(client, reviews) {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `• *${review.title}*\n   Created by <@${review.creator}> | ${approvalCount}/${reviewerCount} approvals`
+            text: `• *${review.title}*\n   Created by <@${review.creatorId}> (${review.creatorName}) | ${approvalCount}/${reviewerCount} approvals`
           }
         });
       });
@@ -1019,40 +1058,40 @@ function formatClientStatus(client, reviews) {
   return blocks;
 }
   
-  // Helper function to format status string
-  function formatStatus(status) {
-    switch (status) {
-      case 'draft':
-        return '📝 Draft';
-      case 'design':
-        return '🎨 Design';
-      case 'in_review':
-        return '👀 In Review';
-      case 'approved':
-        return '✅ Approved';
-      case 'published':
-        return '🚀 Published';
-      default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
-    }
+// Helper function to format status string
+function formatStatus(status) {
+  switch (status) {
+    case 'draft':
+      return '📝 Draft';
+    case 'design':
+      return '🎨 Design';
+    case 'in_review':
+      return '👀 In Review';
+    case 'approved':
+      return '✅ Approved';
+    case 'published':
+      return '🚀 Published';
+    default:
+      return status.charAt(0).toUpperCase() + status.slice(1);
   }
-  
-  module.exports = {
-    init,
-    extractClientFromChannel,
-    createReview,
-    getReviews,
-    getReviewById,
-    addFeedback,
-    approveReview,
-    updateReviewStatus,
-    updateReviewStatusManually,
-    formatReviewRequestMessage,
-    formatReviewNotification,
-    formatReviewFeedbackMessage,
-    formatReviewFeedbackNotification,
-    formatReviewStatusUpdate,
-    formatClientStatus,
-    formatStatus,
-    ensureBotInChannel
-  };
+}
+
+module.exports = {
+  init,
+  extractClientFromChannel,
+  createReview,
+  getReviews,
+  getReviewById,
+  addFeedback,
+  approveReview,
+  updateReviewStatus,
+  updateReviewStatusManually,
+  formatReviewRequestMessage,
+  formatReviewNotification,
+  formatReviewFeedbackMessage,
+  formatReviewFeedbackNotification,
+  formatReviewStatusUpdate,
+  formatClientStatus,
+  formatStatus,
+  ensureBotInChannel
+};

@@ -10,19 +10,29 @@ async function extractClientFromChannelName(channelId, slackClient) {
     
     // Check if channel name starts with "client-"
     if (channelName.startsWith('client-')) {
-      return channelName.substring(7); // Remove "client-" prefix
+      return {
+        client: channelName.substring(7), // Remove "client-" prefix
+        channelName: channelName
+      };
     }
     
-    return channelName;
+    return {
+      client: channelName,
+      channelName: channelName
+    };
   } catch (error) {
     console.error('Error getting channel info:', error);
-    return "general"; // Fallback
+    return {
+      client: "general",
+      channelName: null
+    };
   }
 }
 
-// Resolve usernames to user IDs
+// Resolve usernames to user IDs and get user names
 async function resolveUserIds(userIds, slackClient) {
   const resolvedIds = [];
+  const resolvedNames = [];
   
   for (const id of userIds) {
     if (id.startsWith('USERNAME:')) {
@@ -40,6 +50,7 @@ async function resolveUserIds(userIds, slackClient) {
         if (user) {
           console.log(`Found user ID ${user.id} for username ${username}`);
           resolvedIds.push(user.id);
+          resolvedNames.push(user.real_name || user.name);
         } else {
           console.warn(`Could not find user with name: ${username}`);
           // Don't include unresolved users to prevent API errors
@@ -48,11 +59,20 @@ async function resolveUserIds(userIds, slackClient) {
         console.error(`Error looking up user ${username}:`, error);
       }
     } else {
-      resolvedIds.push(id); // Already an ID
+      // It's already an ID, get the user's name
+      try {
+        const userInfo = await slackClient.users.info({ user: id });
+        resolvedIds.push(id);
+        resolvedNames.push(userInfo.user.real_name || userInfo.user.name);
+      } catch (error) {
+        console.error(`Error fetching user info for ${id}:`, error);
+        resolvedIds.push(id);
+        resolvedNames.push("Unknown User");
+      }
     }
   }
   
-  return resolvedIds;
+  return { resolvedIds, resolvedNames };
 }
 
 async function handleReviewCommand({ command, respond, client, logger, isDM = false }) {
@@ -72,9 +92,20 @@ async function handleReviewCommand({ command, respond, client, logger, isDM = fa
       return;
     }
     
+    // Get creator name
+    let creatorName = "Unknown User";
+    try {
+      const creatorInfo = await client.users.info({ user: command.user_id });
+      creatorName = creatorInfo.user.real_name || creatorInfo.user.name;
+    } catch (error) {
+      logger.error(`Error fetching creator info for ${command.user_id}:`, error);
+      // Continue with unknown user name
+    }
+    
     // Extract client from channel and determine target channel
     let clientName;
     let channelId = command.channel_id;
+    let channelName;
     
     if (args.channelMention) {
       // If a specific channel was mentioned, use that
@@ -82,9 +113,19 @@ async function handleReviewCommand({ command, respond, client, logger, isDM = fa
         // Handle both #channel-name and #C12345 formats
         if (args.channelMention.startsWith('#C')) {
           channelId = args.channelMention.substring(1);
+          const channelInfo = await client.conversations.info({ channel: channelId });
+          channelName = channelInfo.channel.name;
+          
+          // If the channel starts with "client-", extract the client name
+          if (channelName.startsWith('client-')) {
+            clientName = channelName.substring(7); // Remove "client-" prefix
+          } else {
+            clientName = channelName;
+          }
         } else {
           // Extract client name from the channel mention directly
           const mentionedChannel = args.channelMention.substring(1);
+          channelName = mentionedChannel;
           
           // If the channel starts with "client-", extract the client name
           if (mentionedChannel.startsWith('client-')) {
@@ -96,14 +137,18 @@ async function handleReviewCommand({ command, respond, client, logger, isDM = fa
       } catch (error) {
         logger.error('Error processing channel mention:', error);
         clientName = args.channelMention.substring(1); // Fallback to using channel name without #
+        channelName = args.channelMention.substring(1);
       }
     } else {
       // No channel mentioned, use current channel
       try {
-        clientName = await extractClientFromChannelName(channelId, client);
+        const channelResult = await extractClientFromChannelName(channelId, client);
+        clientName = channelResult.client;
+        channelName = channelResult.channelName;
       } catch (error) {
         logger.error('Error getting current channel info:', error);
         clientName = "general"; // Fallback
+        channelName = null;
       }
     }
     
@@ -113,13 +158,17 @@ async function handleReviewCommand({ command, respond, client, logger, isDM = fa
     }
     
     // Resolve any usernames to actual user IDs
+    let reviewerIds = [];
+    let reviewerNames = [];
     if (args.reviewers && args.reviewers.length > 0) {
       logger.info(`Resolving user IDs for reviewers: ${args.reviewers.join(', ')}`);
-      args.reviewers = await resolveUserIds(args.reviewers, client);
+      const results = await resolveUserIds(args.reviewers, client);
+      reviewerIds = results.resolvedIds;
+      reviewerNames = results.resolvedNames;
     }
     
     // Ensure we have at least one reviewer
-    if (!args.reviewers || args.reviewers.length === 0) {
+    if (!reviewerIds || reviewerIds.length === 0) {
       await respond({
         text: 'Please tag at least one reviewer with @username. Make sure the username exists in this workspace.',
         response_type: 'ephemeral'
@@ -135,8 +184,11 @@ async function handleReviewCommand({ command, respond, client, logger, isDM = fa
       args.title,
       args.description || '',
       command.user_id,
-      args.reviewers,
+      creatorName,
+      reviewerIds,
+      reviewerNames,
       channelId,
+      channelName,
       clientName,
       args.url,
       args.deadline,
@@ -148,12 +200,13 @@ async function handleReviewCommand({ command, respond, client, logger, isDM = fa
     
     await respond({
       blocks,
-      text: `Review requested for "${review.title}" from ${args.reviewers.map(r => `<@${r}>`).join(', ')}`,
+      text: `Review requested for "${review.title}" from ${reviewerIds.map(r => `<@${r}>`).join(', ')}`,
       response_type: isDM ? 'in_channel' : 'in_channel'
     });
     
     // Send notifications to each reviewer
-    for (const reviewerId of args.reviewers) {
+    for (let i = 0; i < reviewerIds.length; i++) {
+      const reviewerId = reviewerIds[i];
       try {
         await client.chat.postMessage({
           channel: reviewerId,

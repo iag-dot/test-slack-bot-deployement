@@ -13,6 +13,7 @@ const { handleApproveCommand } = require('./commands/approve');
 const { handleStatusCommand } = require('./commands/status');
 const { handleHelpCommand } = require('./commands/help');
 const { handleDailyReportCommand } = require('./commands/dailyreport');
+const { handleAiCommand } = require('./commands/ai');
 const { formatHelpMessage } = require('./utils/formatters');
 
 // Initialize Prisma with debug logging
@@ -178,6 +179,20 @@ app.command('/inagiffyhelp', async ({ command, ack, respond, logger }) => {
   }
 });
 
+// New AI command
+app.command('/ai', async ({ command, ack, respond, client, logger }) => {
+  await ack();
+  try {
+    await handleAiCommand({ command, respond, client, logger });
+  } catch (error) {
+    logger.error(`Error in AI command: ${error.message}`);
+    await respond({
+      text: `Error processing your request: ${error.message}`,
+      response_type: 'ephemeral'
+    });
+  }
+});
+
 // Add button action handlers
 
 // Task completion button
@@ -187,7 +202,17 @@ app.action('complete_task', async ({ body, ack, respond, client, logger }) => {
   const userId = body.user.id;
   
   try {
-    const task = await taskService.markTaskAsDone(taskId, userId);
+    // Get user's name
+    let userName = "Unknown User";
+    try {
+      const userInfo = await client.users.info({ user: userId });
+      userName = userInfo.user.real_name || userInfo.user.name;
+    } catch (error) {
+      logger.error(`Error fetching user info for ${userId}:`, error);
+      // Continue with unknown user name
+    }
+    
+    const task = await taskService.markTaskAsDone(taskId, userId, userName);
     
     if (!task) {
       await respond({
@@ -237,7 +262,18 @@ app.action('approve_review', async ({ body, ack, respond, client, logger }) => {
   const userId = body.user.id;
   
   try {
-    const result = await reviewService.approveReview(reviewId, userId, "Approved", client);
+    // Get user's name
+    let userName = "Unknown User";
+    try {
+      const userInfo = await client.users.info({ user: userId });
+      userName = userInfo.user.real_name || userInfo.user.name;
+    } catch (error) {
+      logger.error(`Error fetching user info for ${userId}:`, error);
+      // Continue with unknown user name
+    }
+    
+    // Pass simple string as comment, not the client object (fixed)
+    const result = await reviewService.approveReview(reviewId, userId, userName, "Approved", null);
     
     if (!result.success) {
       await respond({
@@ -252,11 +288,30 @@ app.action('approve_review', async ({ body, ack, respond, client, logger }) => {
     await client.chat.update({
       channel: body.channel.id,
       ts: body.message.ts,
-      blocks: reviewService.formatReviewFeedbackMessage(result.review, userId, "approved"),
+      blocks: reviewService.formatReviewFeedbackMessage(result.review, userId, userName, "approved"),
       text: `Feedback provided for "${result.review.title}"`
     });
     
-    // Notify the review creator and channel - handled in approveReview function now
+    // Send notifications separately
+    try {
+      // Notify the channel
+      await client.chat.postMessage({
+        channel: result.review.channel,
+        blocks: reviewService.formatReviewStatusUpdate(result.review, userId, userName),
+        text: `<@${userId}> approved "${result.review.title}"`
+      });
+      
+      // Notify the creator if different from reviewer
+      if (result.review.creatorId !== userId) {
+        await client.chat.postMessage({
+          channel: result.review.creatorId,
+          blocks: reviewService.formatReviewStatusUpdate(result.review, userId, userName),
+          text: `<@${userId}> approved your content "${result.review.title}"`
+        });
+      }
+    } catch (notificationError) {
+      logger.error(`Error sending notifications: ${notificationError}`);
+    }
     
   } catch (error) {
     logger.error('Error handling review approval:', error);
@@ -340,7 +395,17 @@ app.view('review_feedback_modal', async ({ ack, body, view, client, logger }) =>
     const feedback = view.state.values.feedback_input.feedback.value;
     const userId = body.user.id;
     
-    const result = await reviewService.addFeedback(reviewId, userId, feedback, "requested_changes", client);
+    // Get user's name
+    let userName = "Unknown User";
+    try {
+      const userInfo = await client.users.info({ user: userId });
+      userName = userInfo.user.real_name || userInfo.user.name;
+    } catch (error) {
+      logger.error(`Error fetching user info for ${userId}:`, error);
+      // Continue with unknown user name
+    }
+    
+    const result = await reviewService.addFeedback(reviewId, userId, userName, feedback, "requested_changes", client);
     
     if (!result.success) {
       await client.chat.postEphemeral({
@@ -355,7 +420,7 @@ app.view('review_feedback_modal', async ({ ack, body, view, client, logger }) =>
     await client.chat.update({
       channel: channelId,
       ts: messageTs,
-      blocks: reviewService.formatReviewFeedbackMessage(result.review, userId, "requested_changes"),
+      blocks: reviewService.formatReviewFeedbackMessage(result.review, userId, userName, "requested_changes"),
       text: `Feedback provided for "${result.review.title}"`
     });
     
@@ -366,7 +431,7 @@ app.view('review_feedback_modal', async ({ ack, body, view, client, logger }) =>
       
       await client.chat.postMessage({
         channel: result.review.channel,
-        blocks: reviewService.formatReviewFeedbackNotification(result.review, userId, feedback),
+        blocks: reviewService.formatReviewFeedbackNotification(result.review, userId, userName, feedback),
         text: `<@${userId}> requested changes for "${result.review.title}"`
       });
     } catch (error) {
@@ -388,9 +453,9 @@ app.event('app_mention', async ({ event, say, logger }) => {
   logger.info('Bot was mentioned:', event);
   
   const responses = [
-    `Hello <@${event.user}>. I'm the Inagiffy Bot, here to help with task management and content reviews. Try /assign, /tasks, /done, /review, or /client-status commands.`,
-    `Hi <@${event.user}>. Need help managing your workflow? Use /inagiffyhelp to see all available commands.`,
-    `<@${event.user}>, I can help you manage tasks and content reviews. Type /inagiffyhelp to view the command guide.`
+    `Hello <@${event.user}>. I'm the Inagiffy Bot, here to help with task management and content reviews. Try /assign, /tasks, /done, /review, /client-status, or /ai commands.`,
+    `Hi <@${event.user}>. Need help managing your workflow? Use /inagiffyhelp to see all available commands or try /ai for natural language requests.`,
+    `<@${event.user}>, I can help you manage tasks and content reviews. Type /inagiffyhelp to view the command guide or use /ai to ask me something in natural language.`
   ];
   
   const randomResponse = responses[Math.floor(Math.random() * responses.length)];
@@ -494,6 +559,19 @@ app.event('message', async ({ message, say, client, logger }) => {
         logger,
         isDM: true 
       });
+    } else if (text.startsWith('ai ')) {
+      // Handle AI command in DMs
+      await handleAiCommand({ 
+        command: { 
+          text: text.substring('ai '.length),
+          user_id: message.user,
+          channel_id: message.channel 
+        }, 
+        respond: say, 
+        client, 
+        logger,
+        isDM: true 
+      });
     } else if (text === 'help') {
       await handleHelpCommand({ 
         command: { 
@@ -519,7 +597,7 @@ app.event('message', async ({ message, say, client, logger }) => {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: "• `assign @username [task description] [options]` - Create a new task\n• `tasks [@username or team=teamname]` - View tasks\n• `done [task description]` - Mark a task as complete\n• `review [title] [options]` - Request a review\n• `approve [title]` - Approve a review\n• `status [#channel]` - Check content status\n• `dailyreport [team=teamname]` - Get daily activity report\n• `help` - Show this guide"
+              text: "• `assign @username [task description] [options]` - Create a new task\n• `tasks [@username or team=teamname]` - View tasks\n• `done [task description]` - Mark a task as complete\n• `review [title] [options]` - Request a review\n• `approve [title]` - Approve a review\n• `status [#channel]` - Check content status\n• `dailyreport [team=teamname]` - Get daily activity report\n• `ai [your question or request]` - Use AI to help with tasks and questions\n• `help` - Show this guide"
             }
           },
           {
@@ -527,7 +605,7 @@ app.event('message', async ({ message, say, client, logger }) => {
             elements: [
               {
                 type: "mrkdwn",
-                text: "You can also use slash commands in channels: /assign, /tasks, /done, /review, /approve, /client-status, /dailyreport"
+                text: "You can also use slash commands in channels: /assign, /tasks, /done, /review, /approve, /client-status, /dailyreport, /ai"
               }
             ]
           }

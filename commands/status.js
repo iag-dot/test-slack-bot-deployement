@@ -1,16 +1,54 @@
 // commands/status.js
 const reviewService = require('../services/reviewService');
 
-async function extractClientFromChannelMention(channelMention) {
-  // Simple extraction without API calls
+async function extractClientFromChannelMention(channelMention, client) {
   // Handle #client-name format
   if (channelMention.startsWith('#client-')) {
-    return channelMention.substring(8); // Remove "#client-" prefix
+    return {
+      client: channelMention.substring(8), // Remove "#client-" prefix
+      channelName: channelMention.substring(1)  // Just remove "#"
+    };
   } else if (channelMention.startsWith('#')) {
-    return channelMention.substring(1); // Just remove "#"
+    try {
+      if (channelMention.startsWith('#C')) {
+        // It's a channel ID, get channel info
+        const channelId = channelMention.substring(1);
+        const info = await client.conversations.info({ channel: channelId });
+        const channelName = info.channel.name;
+        
+        // Check if channel name starts with "client-"
+        if (channelName.startsWith('client-')) {
+          return {
+            client: channelName.substring(7), // Remove "client-" prefix
+            channelName: channelName
+          };
+        } else {
+          return {
+            client: channelName,
+            channelName: channelName
+          };
+        }
+      } else {
+        // It's a channel name
+        const channelName = channelMention.substring(1);
+        return {
+          client: channelName.startsWith('client-') ? channelName.substring(7) : channelName,
+          channelName: channelName
+        };
+      }
+    } catch (error) {
+      console.error('Error getting channel info:', error);
+      return {
+        client: channelMention.substring(1),
+        channelName: channelMention.substring(1)
+      };
+    }
   }
   
-  return channelMention;
+  return {
+    client: channelMention,
+    channelName: null
+  };
 }
 
 async function handleStatusCommand({ command, respond, client, logger, isDM = false }) {
@@ -20,11 +58,14 @@ async function handleStatusCommand({ command, respond, client, logger, isDM = fa
     const text = command.text.trim();
     let clientName = null;
     let channelId = command.channel_id;
+    let channelName = null;
     
     // Check if a specific channel was mentioned
     if (text && text.startsWith('#')) {
       // Extract client from the channel mention
-      clientName = await extractClientFromChannelMention(text);
+      const result = await extractClientFromChannelMention(text, client);
+      clientName = result.client;
+      channelName = result.channelName;
       
       // If channel ID was provided, use that as the target channel
       if (text.startsWith('#C')) {
@@ -40,7 +81,7 @@ async function handleStatusCommand({ command, respond, client, logger, isDM = fa
       try {
         // Try to get channel name directly
         const info = await client.conversations.info({ channel: channelId });
-        const channelName = info.channel.name;
+        channelName = info.channel.name;
         
         // Check if channel name starts with "client-"
         if (channelName.startsWith('client-')) {

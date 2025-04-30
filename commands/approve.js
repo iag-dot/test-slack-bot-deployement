@@ -15,6 +15,16 @@ async function handleApproveCommand({ command, respond, client, logger, isDM = f
       return;
     }
     
+    // Get user name for the approver
+    let userName = "Unknown User";
+    try {
+      const userInfo = await client.users.info({ user: command.user_id });
+      userName = userInfo.user.real_name || userInfo.user.name;
+    } catch (error) {
+      logger.error(`Error fetching user info for ${command.user_id}:`, error);
+      // Continue with unknown user name
+    }
+    
     // Parse out client prefix (if provided)
     let clientName = null;
     let reviewTitle = text;
@@ -96,16 +106,16 @@ async function handleApproveCommand({ command, respond, client, logger, isDM = f
     }
     
     // Check if user is a reviewer
-    if (!review.reviewers.includes(command.user_id)) {
+    if (!review.reviewerIds.includes(command.user_id)) {
       await respond({
-        text: `You are not listed as a reviewer for "${review.title}". The reviewers are: ${review.reviewers.map(id => `<@${id}>`).join(', ')}`,
+        text: `You are not listed as a reviewer for "${review.title}". The reviewers are: ${review.reviewerIds.map((id, index) => `<@${id}> (${review.reviewerNames[index] || 'Unknown'})`).join(', ')}`,
         response_type: 'ephemeral'
       });
       return;
     }
     
     // Approve the review
-    const result = await reviewService.approveReview(review.reviewId, command.user_id, comment);
+    const result = await reviewService.approveReview(review.reviewId, command.user_id, userName, comment, client);
     
     if (!result.success) {
       await respond({
@@ -117,7 +127,7 @@ async function handleApproveCommand({ command, respond, client, logger, isDM = f
     
     // Send approval confirmation
     await respond({
-      blocks: reviewService.formatReviewFeedbackMessage(result.review, command.user_id, "approved"),
+      blocks: reviewService.formatReviewFeedbackMessage(result.review, command.user_id, userName, "approved"),
       text: `You've approved "${review.title}"`,
       response_type: 'ephemeral'
     });
@@ -126,7 +136,7 @@ async function handleApproveCommand({ command, respond, client, logger, isDM = f
     try {
       await client.chat.postMessage({
         channel: review.channel,
-        blocks: reviewService.formatReviewStatusUpdate(result.review, command.user_id),
+        blocks: reviewService.formatReviewStatusUpdate(result.review, command.user_id, userName),
         text: `<@${command.user_id}> approved "${review.title}"`
       });
       logger.info(`Approval notification sent to channel ${review.channel}`);
@@ -135,14 +145,14 @@ async function handleApproveCommand({ command, respond, client, logger, isDM = f
     }
     
     // Notify the creator if different from reviewer
-    if (review.creator !== command.user_id) {
+    if (review.creatorId !== command.user_id) {
       try {
         await client.chat.postMessage({
-          channel: review.creator,
-          blocks: reviewService.formatReviewStatusUpdate(result.review, command.user_id),
+          channel: review.creatorId,
+          blocks: reviewService.formatReviewStatusUpdate(result.review, command.user_id, userName),
           text: `<@${command.user_id}> approved your content "${review.title}"`
         });
-        logger.info(`Creator notification sent to ${review.creator}`);
+        logger.info(`Creator notification sent to ${review.creatorId}`);
       } catch (error) {
         logger.error(`Error sending creator notification: ${error}`);
       }

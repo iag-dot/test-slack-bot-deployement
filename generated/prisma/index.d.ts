@@ -1198,15 +1198,20 @@ export namespace Prisma {
     title: string | null
     description: string | null
     priority: string | null
-    assignee: string | null
-    creator: string | null
+    assigneeId: string | null
+    assigneeName: string | null
+    creatorId: string | null
+    creatorName: string | null
     channel: string | null
+    channelName: string | null
     client: string | null
     team: string | null
     createdAt: Date | null
     deadline: Date | null
     status: string | null
     completedAt: Date | null
+    completedById: string | null
+    completedByName: string | null
     reminderSent: boolean | null
   }
 
@@ -1216,15 +1221,20 @@ export namespace Prisma {
     title: string | null
     description: string | null
     priority: string | null
-    assignee: string | null
-    creator: string | null
+    assigneeId: string | null
+    assigneeName: string | null
+    creatorId: string | null
+    creatorName: string | null
     channel: string | null
+    channelName: string | null
     client: string | null
     team: string | null
     createdAt: Date | null
     deadline: Date | null
     status: string | null
     completedAt: Date | null
+    completedById: string | null
+    completedByName: string | null
     reminderSent: boolean | null
   }
 
@@ -1234,15 +1244,20 @@ export namespace Prisma {
     title: number
     description: number
     priority: number
-    assignee: number
-    creator: number
+    assigneeId: number
+    assigneeName: number
+    creatorId: number
+    creatorName: number
     channel: number
+    channelName: number
     client: number
     team: number
     createdAt: number
     deadline: number
     status: number
     completedAt: number
+    completedById: number
+    completedByName: number
     reminderSent: number
     _all: number
   }
@@ -1262,15 +1277,20 @@ export namespace Prisma {
     title?: true
     description?: true
     priority?: true
-    assignee?: true
-    creator?: true
+    assigneeId?: true
+    assigneeName?: true
+    creatorId?: true
+    creatorName?: true
     channel?: true
+    channelName?: true
     client?: true
     team?: true
     createdAt?: true
     deadline?: true
     status?: true
     completedAt?: true
+    completedById?: true
+    completedByName?: true
     reminderSent?: true
   }
 
@@ -1280,15 +1300,20 @@ export namespace Prisma {
     title?: true
     description?: true
     priority?: true
-    assignee?: true
-    creator?: true
+    assigneeId?: true
+    assigneeName?: true
+    creatorId?: true
+    creatorName?: true
     channel?: true
+    channelName?: true
     client?: true
     team?: true
     createdAt?: true
     deadline?: true
     status?: true
     completedAt?: true
+    completedById?: true
+    completedByName?: true
     reminderSent?: true
   }
 
@@ -1298,15 +1323,20 @@ export namespace Prisma {
     title?: true
     description?: true
     priority?: true
-    assignee?: true
-    creator?: true
+    assigneeId?: true
+    assigneeName?: true
+    creatorId?: true
+    creatorName?: true
     channel?: true
+    channelName?: true
     client?: true
     team?: true
     createdAt?: true
     deadline?: true
     status?: true
     completedAt?: true
+    completedById?: true
+    completedByName?: true
     reminderSent?: true
     _all?: true
   }
@@ -1403,15 +1433,20 @@ export namespace Prisma {
     title: string
     description: string
     priority: string
-    assignee: string
-    creator: string
+    assigneeId: string
+    assigneeName: string
+    creatorId: string
+    creatorName: string
     channel: string
+    channelName: string | null
     client: string | null
     team: string
     createdAt: Date
     deadline: Date
     status: string
     completedAt: Date | null
+    completedById: string | null
+    completedByName: string | null
     reminderSent: boolean
     _count: TaskCountAggregateOutputType | null
     _avg: TaskAvgAggregateOutputType | null
@@ -1440,15 +1475,20 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     priority?: boolean
-    assignee?: boolean
-    creator?: boolean
+    assigneeId?: boolean
+    assigneeName?: boolean
+    creatorId?: boolean
+    creatorName?: boolean
     channel?: boolean
+    channelName?: boolean
     client?: boolean
     team?: boolean
     createdAt?: boolean
     deadline?: boolean
     status?: boolean
     completedAt?: boolean
+    completedById?: boolean
+    completedByName?: boolean
     reminderSent?: boolean
   }, ExtArgs["result"]["task"]>
 
@@ -1458,15 +1498,20 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     priority?: boolean
-    assignee?: boolean
-    creator?: boolean
+    assigneeId?: boolean
+    assigneeName?: boolean
+    creatorId?: boolean
+    creatorName?: boolean
     channel?: boolean
+    channelName?: boolean
     client?: boolean
     team?: boolean
     createdAt?: boolean
     deadline?: boolean
     status?: boolean
     completedAt?: boolean
+    completedById?: boolean
+    completedByName?: boolean
     reminderSent?: boolean
   }, ExtArgs["result"]["task"]>
 
@@ -1476,15 +1521,20 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     priority?: boolean
-    assignee?: boolean
-    creator?: boolean
+    assigneeId?: boolean
+    assigneeName?: boolean
+    creatorId?: boolean
+    creatorName?: boolean
     channel?: boolean
+    channelName?: boolean
     client?: boolean
     team?: boolean
     createdAt?: boolean
     deadline?: boolean
     status?: boolean
     completedAt?: boolean
+    completedById?: boolean
+    completedByName?: boolean
     reminderSent?: boolean
   }, ExtArgs["result"]["task"]>
 
@@ -1494,19 +1544,24 @@ export namespace Prisma {
     title?: boolean
     description?: boolean
     priority?: boolean
-    assignee?: boolean
-    creator?: boolean
+    assigneeId?: boolean
+    assigneeName?: boolean
+    creatorId?: boolean
+    creatorName?: boolean
     channel?: boolean
+    channelName?: boolean
     client?: boolean
     team?: boolean
     createdAt?: boolean
     deadline?: boolean
     status?: boolean
     completedAt?: boolean
+    completedById?: boolean
+    completedByName?: boolean
     reminderSent?: boolean
   }
 
-  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "taskId" | "title" | "description" | "priority" | "assignee" | "creator" | "channel" | "client" | "team" | "createdAt" | "deadline" | "status" | "completedAt" | "reminderSent", ExtArgs["result"]["task"]>
+  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "taskId" | "title" | "description" | "priority" | "assigneeId" | "assigneeName" | "creatorId" | "creatorName" | "channel" | "channelName" | "client" | "team" | "createdAt" | "deadline" | "status" | "completedAt" | "completedById" | "completedByName" | "reminderSent", ExtArgs["result"]["task"]>
 
   export type $TaskPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Task"
@@ -1517,15 +1572,20 @@ export namespace Prisma {
       title: string
       description: string
       priority: string
-      assignee: string
-      creator: string
+      assigneeId: string
+      assigneeName: string
+      creatorId: string
+      creatorName: string
       channel: string
+      channelName: string | null
       client: string | null
       team: string
       createdAt: Date
       deadline: Date
       status: string
       completedAt: Date | null
+      completedById: string | null
+      completedByName: string | null
       reminderSent: boolean
     }, ExtArgs["result"]["task"]>
     composites: {}
@@ -1955,15 +2015,20 @@ export namespace Prisma {
     readonly title: FieldRef<"Task", 'String'>
     readonly description: FieldRef<"Task", 'String'>
     readonly priority: FieldRef<"Task", 'String'>
-    readonly assignee: FieldRef<"Task", 'String'>
-    readonly creator: FieldRef<"Task", 'String'>
+    readonly assigneeId: FieldRef<"Task", 'String'>
+    readonly assigneeName: FieldRef<"Task", 'String'>
+    readonly creatorId: FieldRef<"Task", 'String'>
+    readonly creatorName: FieldRef<"Task", 'String'>
     readonly channel: FieldRef<"Task", 'String'>
+    readonly channelName: FieldRef<"Task", 'String'>
     readonly client: FieldRef<"Task", 'String'>
     readonly team: FieldRef<"Task", 'String'>
     readonly createdAt: FieldRef<"Task", 'DateTime'>
     readonly deadline: FieldRef<"Task", 'DateTime'>
     readonly status: FieldRef<"Task", 'String'>
     readonly completedAt: FieldRef<"Task", 'DateTime'>
+    readonly completedById: FieldRef<"Task", 'String'>
+    readonly completedByName: FieldRef<"Task", 'String'>
     readonly reminderSent: FieldRef<"Task", 'Boolean'>
   }
     
@@ -2356,8 +2421,10 @@ export namespace Prisma {
     reviewId: string | null
     title: string | null
     description: string | null
-    creator: string | null
+    creatorId: string | null
+    creatorName: string | null
     channel: string | null
+    channelName: string | null
     client: string | null
     url: string | null
     status: string | null
@@ -2371,8 +2438,10 @@ export namespace Prisma {
     reviewId: string | null
     title: string | null
     description: string | null
-    creator: string | null
+    creatorId: string | null
+    creatorName: string | null
     channel: string | null
+    channelName: string | null
     client: string | null
     url: string | null
     status: string | null
@@ -2386,9 +2455,12 @@ export namespace Prisma {
     reviewId: number
     title: number
     description: number
-    creator: number
-    reviewers: number
+    creatorId: number
+    creatorName: number
+    reviewerIds: number
+    reviewerNames: number
     channel: number
+    channelName: number
     client: number
     url: number
     status: number
@@ -2412,8 +2484,10 @@ export namespace Prisma {
     reviewId?: true
     title?: true
     description?: true
-    creator?: true
+    creatorId?: true
+    creatorName?: true
     channel?: true
+    channelName?: true
     client?: true
     url?: true
     status?: true
@@ -2427,8 +2501,10 @@ export namespace Prisma {
     reviewId?: true
     title?: true
     description?: true
-    creator?: true
+    creatorId?: true
+    creatorName?: true
     channel?: true
+    channelName?: true
     client?: true
     url?: true
     status?: true
@@ -2442,9 +2518,12 @@ export namespace Prisma {
     reviewId?: true
     title?: true
     description?: true
-    creator?: true
-    reviewers?: true
+    creatorId?: true
+    creatorName?: true
+    reviewerIds?: true
+    reviewerNames?: true
     channel?: true
+    channelName?: true
     client?: true
     url?: true
     status?: true
@@ -2545,9 +2624,12 @@ export namespace Prisma {
     reviewId: string
     title: string
     description: string | null
-    creator: string
-    reviewers: string[]
+    creatorId: string
+    creatorName: string
+    reviewerIds: string[]
+    reviewerNames: string[]
     channel: string
+    channelName: string | null
     client: string
     url: string | null
     status: string
@@ -2580,9 +2662,12 @@ export namespace Prisma {
     reviewId?: boolean
     title?: boolean
     description?: boolean
-    creator?: boolean
-    reviewers?: boolean
+    creatorId?: boolean
+    creatorName?: boolean
+    reviewerIds?: boolean
+    reviewerNames?: boolean
     channel?: boolean
+    channelName?: boolean
     client?: boolean
     url?: boolean
     status?: boolean
@@ -2598,9 +2683,12 @@ export namespace Prisma {
     reviewId?: boolean
     title?: boolean
     description?: boolean
-    creator?: boolean
-    reviewers?: boolean
+    creatorId?: boolean
+    creatorName?: boolean
+    reviewerIds?: boolean
+    reviewerNames?: boolean
     channel?: boolean
+    channelName?: boolean
     client?: boolean
     url?: boolean
     status?: boolean
@@ -2614,9 +2702,12 @@ export namespace Prisma {
     reviewId?: boolean
     title?: boolean
     description?: boolean
-    creator?: boolean
-    reviewers?: boolean
+    creatorId?: boolean
+    creatorName?: boolean
+    reviewerIds?: boolean
+    reviewerNames?: boolean
     channel?: boolean
+    channelName?: boolean
     client?: boolean
     url?: boolean
     status?: boolean
@@ -2630,9 +2721,12 @@ export namespace Prisma {
     reviewId?: boolean
     title?: boolean
     description?: boolean
-    creator?: boolean
-    reviewers?: boolean
+    creatorId?: boolean
+    creatorName?: boolean
+    reviewerIds?: boolean
+    reviewerNames?: boolean
     channel?: boolean
+    channelName?: boolean
     client?: boolean
     url?: boolean
     status?: boolean
@@ -2641,7 +2735,7 @@ export namespace Prisma {
     completedAt?: boolean
   }
 
-  export type ReviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "reviewId" | "title" | "description" | "creator" | "reviewers" | "channel" | "client" | "url" | "status" | "createdAt" | "deadline" | "completedAt", ExtArgs["result"]["review"]>
+  export type ReviewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "reviewId" | "title" | "description" | "creatorId" | "creatorName" | "reviewerIds" | "reviewerNames" | "channel" | "channelName" | "client" | "url" | "status" | "createdAt" | "deadline" | "completedAt", ExtArgs["result"]["review"]>
   export type ReviewInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     feedbacks?: boolean | Review$feedbacksArgs<ExtArgs>
     _count?: boolean | ReviewCountOutputTypeDefaultArgs<ExtArgs>
@@ -2659,9 +2753,12 @@ export namespace Prisma {
       reviewId: string
       title: string
       description: string | null
-      creator: string
-      reviewers: string[]
+      creatorId: string
+      creatorName: string
+      reviewerIds: string[]
+      reviewerNames: string[]
       channel: string
+      channelName: string | null
       client: string
       url: string | null
       status: string
@@ -3096,9 +3193,12 @@ export namespace Prisma {
     readonly reviewId: FieldRef<"Review", 'String'>
     readonly title: FieldRef<"Review", 'String'>
     readonly description: FieldRef<"Review", 'String'>
-    readonly creator: FieldRef<"Review", 'String'>
-    readonly reviewers: FieldRef<"Review", 'String[]'>
+    readonly creatorId: FieldRef<"Review", 'String'>
+    readonly creatorName: FieldRef<"Review", 'String'>
+    readonly reviewerIds: FieldRef<"Review", 'String[]'>
+    readonly reviewerNames: FieldRef<"Review", 'String[]'>
     readonly channel: FieldRef<"Review", 'String'>
+    readonly channelName: FieldRef<"Review", 'String'>
     readonly client: FieldRef<"Review", 'String'>
     readonly url: FieldRef<"Review", 'String'>
     readonly status: FieldRef<"Review", 'String'>
@@ -3560,7 +3660,8 @@ export namespace Prisma {
   export type FeedbackMinAggregateOutputType = {
     id: number | null
     reviewId: number | null
-    reviewer: string | null
+    reviewerId: string | null
+    reviewerName: string | null
     comment: string | null
     status: string | null
     createdAt: Date | null
@@ -3569,7 +3670,8 @@ export namespace Prisma {
   export type FeedbackMaxAggregateOutputType = {
     id: number | null
     reviewId: number | null
-    reviewer: string | null
+    reviewerId: string | null
+    reviewerName: string | null
     comment: string | null
     status: string | null
     createdAt: Date | null
@@ -3578,7 +3680,8 @@ export namespace Prisma {
   export type FeedbackCountAggregateOutputType = {
     id: number
     reviewId: number
-    reviewer: number
+    reviewerId: number
+    reviewerName: number
     comment: number
     status: number
     createdAt: number
@@ -3599,7 +3702,8 @@ export namespace Prisma {
   export type FeedbackMinAggregateInputType = {
     id?: true
     reviewId?: true
-    reviewer?: true
+    reviewerId?: true
+    reviewerName?: true
     comment?: true
     status?: true
     createdAt?: true
@@ -3608,7 +3712,8 @@ export namespace Prisma {
   export type FeedbackMaxAggregateInputType = {
     id?: true
     reviewId?: true
-    reviewer?: true
+    reviewerId?: true
+    reviewerName?: true
     comment?: true
     status?: true
     createdAt?: true
@@ -3617,7 +3722,8 @@ export namespace Prisma {
   export type FeedbackCountAggregateInputType = {
     id?: true
     reviewId?: true
-    reviewer?: true
+    reviewerId?: true
+    reviewerName?: true
     comment?: true
     status?: true
     createdAt?: true
@@ -3713,7 +3819,8 @@ export namespace Prisma {
   export type FeedbackGroupByOutputType = {
     id: number
     reviewId: number
-    reviewer: string
+    reviewerId: string
+    reviewerName: string
     comment: string
     status: string
     createdAt: Date
@@ -3741,7 +3848,8 @@ export namespace Prisma {
   export type FeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     reviewId?: boolean
-    reviewer?: boolean
+    reviewerId?: boolean
+    reviewerName?: boolean
     comment?: boolean
     status?: boolean
     createdAt?: boolean
@@ -3751,7 +3859,8 @@ export namespace Prisma {
   export type FeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     reviewId?: boolean
-    reviewer?: boolean
+    reviewerId?: boolean
+    reviewerName?: boolean
     comment?: boolean
     status?: boolean
     createdAt?: boolean
@@ -3761,7 +3870,8 @@ export namespace Prisma {
   export type FeedbackSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     reviewId?: boolean
-    reviewer?: boolean
+    reviewerId?: boolean
+    reviewerName?: boolean
     comment?: boolean
     status?: boolean
     createdAt?: boolean
@@ -3771,13 +3881,14 @@ export namespace Prisma {
   export type FeedbackSelectScalar = {
     id?: boolean
     reviewId?: boolean
-    reviewer?: boolean
+    reviewerId?: boolean
+    reviewerName?: boolean
     comment?: boolean
     status?: boolean
     createdAt?: boolean
   }
 
-  export type FeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "reviewId" | "reviewer" | "comment" | "status" | "createdAt", ExtArgs["result"]["feedback"]>
+  export type FeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "reviewId" | "reviewerId" | "reviewerName" | "comment" | "status" | "createdAt", ExtArgs["result"]["feedback"]>
   export type FeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     review?: boolean | ReviewDefaultArgs<ExtArgs>
   }
@@ -3796,7 +3907,8 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       reviewId: number
-      reviewer: string
+      reviewerId: string
+      reviewerName: string
       comment: string
       status: string
       createdAt: Date
@@ -4226,7 +4338,8 @@ export namespace Prisma {
   interface FeedbackFieldRefs {
     readonly id: FieldRef<"Feedback", 'Int'>
     readonly reviewId: FieldRef<"Feedback", 'Int'>
-    readonly reviewer: FieldRef<"Feedback", 'String'>
+    readonly reviewerId: FieldRef<"Feedback", 'String'>
+    readonly reviewerName: FieldRef<"Feedback", 'String'>
     readonly comment: FieldRef<"Feedback", 'String'>
     readonly status: FieldRef<"Feedback", 'String'>
     readonly createdAt: FieldRef<"Feedback", 'DateTime'>
@@ -5676,15 +5789,20 @@ export namespace Prisma {
     title: 'title',
     description: 'description',
     priority: 'priority',
-    assignee: 'assignee',
-    creator: 'creator',
+    assigneeId: 'assigneeId',
+    assigneeName: 'assigneeName',
+    creatorId: 'creatorId',
+    creatorName: 'creatorName',
     channel: 'channel',
+    channelName: 'channelName',
     client: 'client',
     team: 'team',
     createdAt: 'createdAt',
     deadline: 'deadline',
     status: 'status',
     completedAt: 'completedAt',
+    completedById: 'completedById',
+    completedByName: 'completedByName',
     reminderSent: 'reminderSent'
   };
 
@@ -5696,9 +5814,12 @@ export namespace Prisma {
     reviewId: 'reviewId',
     title: 'title',
     description: 'description',
-    creator: 'creator',
-    reviewers: 'reviewers',
+    creatorId: 'creatorId',
+    creatorName: 'creatorName',
+    reviewerIds: 'reviewerIds',
+    reviewerNames: 'reviewerNames',
     channel: 'channel',
+    channelName: 'channelName',
     client: 'client',
     url: 'url',
     status: 'status',
@@ -5713,7 +5834,8 @@ export namespace Prisma {
   export const FeedbackScalarFieldEnum: {
     id: 'id',
     reviewId: 'reviewId',
-    reviewer: 'reviewer',
+    reviewerId: 'reviewerId',
+    reviewerName: 'reviewerName',
     comment: 'comment',
     status: 'status',
     createdAt: 'createdAt'
@@ -5866,15 +5988,20 @@ export namespace Prisma {
     title?: StringFilter<"Task"> | string
     description?: StringFilter<"Task"> | string
     priority?: StringFilter<"Task"> | string
-    assignee?: StringFilter<"Task"> | string
-    creator?: StringFilter<"Task"> | string
+    assigneeId?: StringFilter<"Task"> | string
+    assigneeName?: StringFilter<"Task"> | string
+    creatorId?: StringFilter<"Task"> | string
+    creatorName?: StringFilter<"Task"> | string
     channel?: StringFilter<"Task"> | string
+    channelName?: StringNullableFilter<"Task"> | string | null
     client?: StringNullableFilter<"Task"> | string | null
     team?: StringFilter<"Task"> | string
     createdAt?: DateTimeFilter<"Task"> | Date | string
     deadline?: DateTimeFilter<"Task"> | Date | string
     status?: StringFilter<"Task"> | string
     completedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    completedById?: StringNullableFilter<"Task"> | string | null
+    completedByName?: StringNullableFilter<"Task"> | string | null
     reminderSent?: BoolFilter<"Task"> | boolean
   }
 
@@ -5884,15 +6011,20 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     priority?: SortOrder
-    assignee?: SortOrder
-    creator?: SortOrder
+    assigneeId?: SortOrder
+    assigneeName?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrderInput | SortOrder
     client?: SortOrderInput | SortOrder
     team?: SortOrder
     createdAt?: SortOrder
     deadline?: SortOrder
     status?: SortOrder
     completedAt?: SortOrderInput | SortOrder
+    completedById?: SortOrderInput | SortOrder
+    completedByName?: SortOrderInput | SortOrder
     reminderSent?: SortOrder
   }
 
@@ -5905,15 +6037,20 @@ export namespace Prisma {
     title?: StringFilter<"Task"> | string
     description?: StringFilter<"Task"> | string
     priority?: StringFilter<"Task"> | string
-    assignee?: StringFilter<"Task"> | string
-    creator?: StringFilter<"Task"> | string
+    assigneeId?: StringFilter<"Task"> | string
+    assigneeName?: StringFilter<"Task"> | string
+    creatorId?: StringFilter<"Task"> | string
+    creatorName?: StringFilter<"Task"> | string
     channel?: StringFilter<"Task"> | string
+    channelName?: StringNullableFilter<"Task"> | string | null
     client?: StringNullableFilter<"Task"> | string | null
     team?: StringFilter<"Task"> | string
     createdAt?: DateTimeFilter<"Task"> | Date | string
     deadline?: DateTimeFilter<"Task"> | Date | string
     status?: StringFilter<"Task"> | string
     completedAt?: DateTimeNullableFilter<"Task"> | Date | string | null
+    completedById?: StringNullableFilter<"Task"> | string | null
+    completedByName?: StringNullableFilter<"Task"> | string | null
     reminderSent?: BoolFilter<"Task"> | boolean
   }, "id" | "taskId">
 
@@ -5923,15 +6060,20 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     priority?: SortOrder
-    assignee?: SortOrder
-    creator?: SortOrder
+    assigneeId?: SortOrder
+    assigneeName?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrderInput | SortOrder
     client?: SortOrderInput | SortOrder
     team?: SortOrder
     createdAt?: SortOrder
     deadline?: SortOrder
     status?: SortOrder
     completedAt?: SortOrderInput | SortOrder
+    completedById?: SortOrderInput | SortOrder
+    completedByName?: SortOrderInput | SortOrder
     reminderSent?: SortOrder
     _count?: TaskCountOrderByAggregateInput
     _avg?: TaskAvgOrderByAggregateInput
@@ -5949,15 +6091,20 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Task"> | string
     description?: StringWithAggregatesFilter<"Task"> | string
     priority?: StringWithAggregatesFilter<"Task"> | string
-    assignee?: StringWithAggregatesFilter<"Task"> | string
-    creator?: StringWithAggregatesFilter<"Task"> | string
+    assigneeId?: StringWithAggregatesFilter<"Task"> | string
+    assigneeName?: StringWithAggregatesFilter<"Task"> | string
+    creatorId?: StringWithAggregatesFilter<"Task"> | string
+    creatorName?: StringWithAggregatesFilter<"Task"> | string
     channel?: StringWithAggregatesFilter<"Task"> | string
+    channelName?: StringNullableWithAggregatesFilter<"Task"> | string | null
     client?: StringNullableWithAggregatesFilter<"Task"> | string | null
     team?: StringWithAggregatesFilter<"Task"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Task"> | Date | string
     deadline?: DateTimeWithAggregatesFilter<"Task"> | Date | string
     status?: StringWithAggregatesFilter<"Task"> | string
     completedAt?: DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
+    completedById?: StringNullableWithAggregatesFilter<"Task"> | string | null
+    completedByName?: StringNullableWithAggregatesFilter<"Task"> | string | null
     reminderSent?: BoolWithAggregatesFilter<"Task"> | boolean
   }
 
@@ -5969,9 +6116,12 @@ export namespace Prisma {
     reviewId?: StringFilter<"Review"> | string
     title?: StringFilter<"Review"> | string
     description?: StringNullableFilter<"Review"> | string | null
-    creator?: StringFilter<"Review"> | string
-    reviewers?: StringNullableListFilter<"Review">
+    creatorId?: StringFilter<"Review"> | string
+    creatorName?: StringFilter<"Review"> | string
+    reviewerIds?: StringNullableListFilter<"Review">
+    reviewerNames?: StringNullableListFilter<"Review">
     channel?: StringFilter<"Review"> | string
+    channelName?: StringNullableFilter<"Review"> | string | null
     client?: StringFilter<"Review"> | string
     url?: StringNullableFilter<"Review"> | string | null
     status?: StringFilter<"Review"> | string
@@ -5986,9 +6136,12 @@ export namespace Prisma {
     reviewId?: SortOrder
     title?: SortOrder
     description?: SortOrderInput | SortOrder
-    creator?: SortOrder
-    reviewers?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
+    reviewerIds?: SortOrder
+    reviewerNames?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrderInput | SortOrder
     client?: SortOrder
     url?: SortOrderInput | SortOrder
     status?: SortOrder
@@ -6006,9 +6159,12 @@ export namespace Prisma {
     NOT?: ReviewWhereInput | ReviewWhereInput[]
     title?: StringFilter<"Review"> | string
     description?: StringNullableFilter<"Review"> | string | null
-    creator?: StringFilter<"Review"> | string
-    reviewers?: StringNullableListFilter<"Review">
+    creatorId?: StringFilter<"Review"> | string
+    creatorName?: StringFilter<"Review"> | string
+    reviewerIds?: StringNullableListFilter<"Review">
+    reviewerNames?: StringNullableListFilter<"Review">
     channel?: StringFilter<"Review"> | string
+    channelName?: StringNullableFilter<"Review"> | string | null
     client?: StringFilter<"Review"> | string
     url?: StringNullableFilter<"Review"> | string | null
     status?: StringFilter<"Review"> | string
@@ -6023,9 +6179,12 @@ export namespace Prisma {
     reviewId?: SortOrder
     title?: SortOrder
     description?: SortOrderInput | SortOrder
-    creator?: SortOrder
-    reviewers?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
+    reviewerIds?: SortOrder
+    reviewerNames?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrderInput | SortOrder
     client?: SortOrder
     url?: SortOrderInput | SortOrder
     status?: SortOrder
@@ -6047,9 +6206,12 @@ export namespace Prisma {
     reviewId?: StringWithAggregatesFilter<"Review"> | string
     title?: StringWithAggregatesFilter<"Review"> | string
     description?: StringNullableWithAggregatesFilter<"Review"> | string | null
-    creator?: StringWithAggregatesFilter<"Review"> | string
-    reviewers?: StringNullableListFilter<"Review">
+    creatorId?: StringWithAggregatesFilter<"Review"> | string
+    creatorName?: StringWithAggregatesFilter<"Review"> | string
+    reviewerIds?: StringNullableListFilter<"Review">
+    reviewerNames?: StringNullableListFilter<"Review">
     channel?: StringWithAggregatesFilter<"Review"> | string
+    channelName?: StringNullableWithAggregatesFilter<"Review"> | string | null
     client?: StringWithAggregatesFilter<"Review"> | string
     url?: StringNullableWithAggregatesFilter<"Review"> | string | null
     status?: StringWithAggregatesFilter<"Review"> | string
@@ -6064,7 +6226,8 @@ export namespace Prisma {
     NOT?: FeedbackWhereInput | FeedbackWhereInput[]
     id?: IntFilter<"Feedback"> | number
     reviewId?: IntFilter<"Feedback"> | number
-    reviewer?: StringFilter<"Feedback"> | string
+    reviewerId?: StringFilter<"Feedback"> | string
+    reviewerName?: StringFilter<"Feedback"> | string
     comment?: StringFilter<"Feedback"> | string
     status?: StringFilter<"Feedback"> | string
     createdAt?: DateTimeFilter<"Feedback"> | Date | string
@@ -6074,7 +6237,8 @@ export namespace Prisma {
   export type FeedbackOrderByWithRelationInput = {
     id?: SortOrder
     reviewId?: SortOrder
-    reviewer?: SortOrder
+    reviewerId?: SortOrder
+    reviewerName?: SortOrder
     comment?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -6087,7 +6251,8 @@ export namespace Prisma {
     OR?: FeedbackWhereInput[]
     NOT?: FeedbackWhereInput | FeedbackWhereInput[]
     reviewId?: IntFilter<"Feedback"> | number
-    reviewer?: StringFilter<"Feedback"> | string
+    reviewerId?: StringFilter<"Feedback"> | string
+    reviewerName?: StringFilter<"Feedback"> | string
     comment?: StringFilter<"Feedback"> | string
     status?: StringFilter<"Feedback"> | string
     createdAt?: DateTimeFilter<"Feedback"> | Date | string
@@ -6097,7 +6262,8 @@ export namespace Prisma {
   export type FeedbackOrderByWithAggregationInput = {
     id?: SortOrder
     reviewId?: SortOrder
-    reviewer?: SortOrder
+    reviewerId?: SortOrder
+    reviewerName?: SortOrder
     comment?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -6114,7 +6280,8 @@ export namespace Prisma {
     NOT?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"Feedback"> | number
     reviewId?: IntWithAggregatesFilter<"Feedback"> | number
-    reviewer?: StringWithAggregatesFilter<"Feedback"> | string
+    reviewerId?: StringWithAggregatesFilter<"Feedback"> | string
+    reviewerName?: StringWithAggregatesFilter<"Feedback"> | string
     comment?: StringWithAggregatesFilter<"Feedback"> | string
     status?: StringWithAggregatesFilter<"Feedback"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
@@ -6174,15 +6341,20 @@ export namespace Prisma {
     title: string
     description: string
     priority: string
-    assignee: string
-    creator: string
+    assigneeId: string
+    assigneeName: string
+    creatorId: string
+    creatorName: string
     channel: string
+    channelName?: string | null
     client?: string | null
     team: string
     createdAt?: Date | string
     deadline: Date | string
     status: string
     completedAt?: Date | string | null
+    completedById?: string | null
+    completedByName?: string | null
     reminderSent?: boolean
   }
 
@@ -6192,15 +6364,20 @@ export namespace Prisma {
     title: string
     description: string
     priority: string
-    assignee: string
-    creator: string
+    assigneeId: string
+    assigneeName: string
+    creatorId: string
+    creatorName: string
     channel: string
+    channelName?: string | null
     client?: string | null
     team: string
     createdAt?: Date | string
     deadline: Date | string
     status: string
     completedAt?: Date | string | null
+    completedById?: string | null
+    completedByName?: string | null
     reminderSent?: boolean
   }
 
@@ -6209,15 +6386,20 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    assignee?: StringFieldUpdateOperationsInput | string
-    creator?: StringFieldUpdateOperationsInput | string
+    assigneeId?: StringFieldUpdateOperationsInput | string
+    assigneeName?: StringFieldUpdateOperationsInput | string
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: NullableStringFieldUpdateOperationsInput | string | null
     team?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedById?: NullableStringFieldUpdateOperationsInput | string | null
+    completedByName?: NullableStringFieldUpdateOperationsInput | string | null
     reminderSent?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -6227,15 +6409,20 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    assignee?: StringFieldUpdateOperationsInput | string
-    creator?: StringFieldUpdateOperationsInput | string
+    assigneeId?: StringFieldUpdateOperationsInput | string
+    assigneeName?: StringFieldUpdateOperationsInput | string
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: NullableStringFieldUpdateOperationsInput | string | null
     team?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedById?: NullableStringFieldUpdateOperationsInput | string | null
+    completedByName?: NullableStringFieldUpdateOperationsInput | string | null
     reminderSent?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -6245,15 +6432,20 @@ export namespace Prisma {
     title: string
     description: string
     priority: string
-    assignee: string
-    creator: string
+    assigneeId: string
+    assigneeName: string
+    creatorId: string
+    creatorName: string
     channel: string
+    channelName?: string | null
     client?: string | null
     team: string
     createdAt?: Date | string
     deadline: Date | string
     status: string
     completedAt?: Date | string | null
+    completedById?: string | null
+    completedByName?: string | null
     reminderSent?: boolean
   }
 
@@ -6262,15 +6454,20 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    assignee?: StringFieldUpdateOperationsInput | string
-    creator?: StringFieldUpdateOperationsInput | string
+    assigneeId?: StringFieldUpdateOperationsInput | string
+    assigneeName?: StringFieldUpdateOperationsInput | string
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: NullableStringFieldUpdateOperationsInput | string | null
     team?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedById?: NullableStringFieldUpdateOperationsInput | string | null
+    completedByName?: NullableStringFieldUpdateOperationsInput | string | null
     reminderSent?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -6280,15 +6477,20 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     priority?: StringFieldUpdateOperationsInput | string
-    assignee?: StringFieldUpdateOperationsInput | string
-    creator?: StringFieldUpdateOperationsInput | string
+    assigneeId?: StringFieldUpdateOperationsInput | string
+    assigneeName?: StringFieldUpdateOperationsInput | string
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: NullableStringFieldUpdateOperationsInput | string | null
     team?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deadline?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedById?: NullableStringFieldUpdateOperationsInput | string | null
+    completedByName?: NullableStringFieldUpdateOperationsInput | string | null
     reminderSent?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -6296,9 +6498,12 @@ export namespace Prisma {
     reviewId: string
     title: string
     description?: string | null
-    creator: string
-    reviewers?: ReviewCreatereviewersInput | string[]
+    creatorId: string
+    creatorName: string
+    reviewerIds?: ReviewCreatereviewerIdsInput | string[]
+    reviewerNames?: ReviewCreatereviewerNamesInput | string[]
     channel: string
+    channelName?: string | null
     client: string
     url?: string | null
     status: string
@@ -6313,9 +6518,12 @@ export namespace Prisma {
     reviewId: string
     title: string
     description?: string | null
-    creator: string
-    reviewers?: ReviewCreatereviewersInput | string[]
+    creatorId: string
+    creatorName: string
+    reviewerIds?: ReviewCreatereviewerIdsInput | string[]
+    reviewerNames?: ReviewCreatereviewerNamesInput | string[]
     channel: string
+    channelName?: string | null
     client: string
     url?: string | null
     status: string
@@ -6329,9 +6537,12 @@ export namespace Prisma {
     reviewId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    creator?: StringFieldUpdateOperationsInput | string
-    reviewers?: ReviewUpdatereviewersInput | string[]
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
+    reviewerIds?: ReviewUpdatereviewerIdsInput | string[]
+    reviewerNames?: ReviewUpdatereviewerNamesInput | string[]
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: StringFieldUpdateOperationsInput | string
     url?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -6346,9 +6557,12 @@ export namespace Prisma {
     reviewId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    creator?: StringFieldUpdateOperationsInput | string
-    reviewers?: ReviewUpdatereviewersInput | string[]
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
+    reviewerIds?: ReviewUpdatereviewerIdsInput | string[]
+    reviewerNames?: ReviewUpdatereviewerNamesInput | string[]
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: StringFieldUpdateOperationsInput | string
     url?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -6363,9 +6577,12 @@ export namespace Prisma {
     reviewId: string
     title: string
     description?: string | null
-    creator: string
-    reviewers?: ReviewCreatereviewersInput | string[]
+    creatorId: string
+    creatorName: string
+    reviewerIds?: ReviewCreatereviewerIdsInput | string[]
+    reviewerNames?: ReviewCreatereviewerNamesInput | string[]
     channel: string
+    channelName?: string | null
     client: string
     url?: string | null
     status: string
@@ -6378,9 +6595,12 @@ export namespace Prisma {
     reviewId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    creator?: StringFieldUpdateOperationsInput | string
-    reviewers?: ReviewUpdatereviewersInput | string[]
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
+    reviewerIds?: ReviewUpdatereviewerIdsInput | string[]
+    reviewerNames?: ReviewUpdatereviewerNamesInput | string[]
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: StringFieldUpdateOperationsInput | string
     url?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -6394,9 +6614,12 @@ export namespace Prisma {
     reviewId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    creator?: StringFieldUpdateOperationsInput | string
-    reviewers?: ReviewUpdatereviewersInput | string[]
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
+    reviewerIds?: ReviewUpdatereviewerIdsInput | string[]
+    reviewerNames?: ReviewUpdatereviewerNamesInput | string[]
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: StringFieldUpdateOperationsInput | string
     url?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -6406,7 +6629,8 @@ export namespace Prisma {
   }
 
   export type FeedbackCreateInput = {
-    reviewer: string
+    reviewerId: string
+    reviewerName: string
     comment: string
     status: string
     createdAt?: Date | string
@@ -6416,14 +6640,16 @@ export namespace Prisma {
   export type FeedbackUncheckedCreateInput = {
     id?: number
     reviewId: number
-    reviewer: string
+    reviewerId: string
+    reviewerName: string
     comment: string
     status: string
     createdAt?: Date | string
   }
 
   export type FeedbackUpdateInput = {
-    reviewer?: StringFieldUpdateOperationsInput | string
+    reviewerId?: StringFieldUpdateOperationsInput | string
+    reviewerName?: StringFieldUpdateOperationsInput | string
     comment?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6433,7 +6659,8 @@ export namespace Prisma {
   export type FeedbackUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     reviewId?: IntFieldUpdateOperationsInput | number
-    reviewer?: StringFieldUpdateOperationsInput | string
+    reviewerId?: StringFieldUpdateOperationsInput | string
+    reviewerName?: StringFieldUpdateOperationsInput | string
     comment?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6442,14 +6669,16 @@ export namespace Prisma {
   export type FeedbackCreateManyInput = {
     id?: number
     reviewId: number
-    reviewer: string
+    reviewerId: string
+    reviewerName: string
     comment: string
     status: string
     createdAt?: Date | string
   }
 
   export type FeedbackUpdateManyMutationInput = {
-    reviewer?: StringFieldUpdateOperationsInput | string
+    reviewerId?: StringFieldUpdateOperationsInput | string
+    reviewerName?: StringFieldUpdateOperationsInput | string
     comment?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6458,7 +6687,8 @@ export namespace Prisma {
   export type FeedbackUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     reviewId?: IntFieldUpdateOperationsInput | number
-    reviewer?: StringFieldUpdateOperationsInput | string
+    reviewerId?: StringFieldUpdateOperationsInput | string
+    reviewerName?: StringFieldUpdateOperationsInput | string
     comment?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6589,15 +6819,20 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     priority?: SortOrder
-    assignee?: SortOrder
-    creator?: SortOrder
+    assigneeId?: SortOrder
+    assigneeName?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrder
     client?: SortOrder
     team?: SortOrder
     createdAt?: SortOrder
     deadline?: SortOrder
     status?: SortOrder
     completedAt?: SortOrder
+    completedById?: SortOrder
+    completedByName?: SortOrder
     reminderSent?: SortOrder
   }
 
@@ -6611,15 +6846,20 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     priority?: SortOrder
-    assignee?: SortOrder
-    creator?: SortOrder
+    assigneeId?: SortOrder
+    assigneeName?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrder
     client?: SortOrder
     team?: SortOrder
     createdAt?: SortOrder
     deadline?: SortOrder
     status?: SortOrder
     completedAt?: SortOrder
+    completedById?: SortOrder
+    completedByName?: SortOrder
     reminderSent?: SortOrder
   }
 
@@ -6629,15 +6869,20 @@ export namespace Prisma {
     title?: SortOrder
     description?: SortOrder
     priority?: SortOrder
-    assignee?: SortOrder
-    creator?: SortOrder
+    assigneeId?: SortOrder
+    assigneeName?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrder
     client?: SortOrder
     team?: SortOrder
     createdAt?: SortOrder
     deadline?: SortOrder
     status?: SortOrder
     completedAt?: SortOrder
+    completedById?: SortOrder
+    completedByName?: SortOrder
     reminderSent?: SortOrder
   }
 
@@ -6756,9 +7001,12 @@ export namespace Prisma {
     reviewId?: SortOrder
     title?: SortOrder
     description?: SortOrder
-    creator?: SortOrder
-    reviewers?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
+    reviewerIds?: SortOrder
+    reviewerNames?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrder
     client?: SortOrder
     url?: SortOrder
     status?: SortOrder
@@ -6776,8 +7024,10 @@ export namespace Prisma {
     reviewId?: SortOrder
     title?: SortOrder
     description?: SortOrder
-    creator?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrder
     client?: SortOrder
     url?: SortOrder
     status?: SortOrder
@@ -6791,8 +7041,10 @@ export namespace Prisma {
     reviewId?: SortOrder
     title?: SortOrder
     description?: SortOrder
-    creator?: SortOrder
+    creatorId?: SortOrder
+    creatorName?: SortOrder
     channel?: SortOrder
+    channelName?: SortOrder
     client?: SortOrder
     url?: SortOrder
     status?: SortOrder
@@ -6813,7 +7065,8 @@ export namespace Prisma {
   export type FeedbackCountOrderByAggregateInput = {
     id?: SortOrder
     reviewId?: SortOrder
-    reviewer?: SortOrder
+    reviewerId?: SortOrder
+    reviewerName?: SortOrder
     comment?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -6827,7 +7080,8 @@ export namespace Prisma {
   export type FeedbackMaxOrderByAggregateInput = {
     id?: SortOrder
     reviewId?: SortOrder
-    reviewer?: SortOrder
+    reviewerId?: SortOrder
+    reviewerName?: SortOrder
     comment?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -6836,7 +7090,8 @@ export namespace Prisma {
   export type FeedbackMinOrderByAggregateInput = {
     id?: SortOrder
     reviewId?: SortOrder
-    reviewer?: SortOrder
+    reviewerId?: SortOrder
+    reviewerName?: SortOrder
     comment?: SortOrder
     status?: SortOrder
     createdAt?: SortOrder
@@ -6951,7 +7206,11 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type ReviewCreatereviewersInput = {
+  export type ReviewCreatereviewerIdsInput = {
+    set: string[]
+  }
+
+  export type ReviewCreatereviewerNamesInput = {
     set: string[]
   }
 
@@ -6969,7 +7228,12 @@ export namespace Prisma {
     connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
   }
 
-  export type ReviewUpdatereviewersInput = {
+  export type ReviewUpdatereviewerIdsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type ReviewUpdatereviewerNamesInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -7214,7 +7478,8 @@ export namespace Prisma {
   }
 
   export type FeedbackCreateWithoutReviewInput = {
-    reviewer: string
+    reviewerId: string
+    reviewerName: string
     comment: string
     status: string
     createdAt?: Date | string
@@ -7222,7 +7487,8 @@ export namespace Prisma {
 
   export type FeedbackUncheckedCreateWithoutReviewInput = {
     id?: number
-    reviewer: string
+    reviewerId: string
+    reviewerName: string
     comment: string
     status: string
     createdAt?: Date | string
@@ -7260,7 +7526,8 @@ export namespace Prisma {
     NOT?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
     id?: IntFilter<"Feedback"> | number
     reviewId?: IntFilter<"Feedback"> | number
-    reviewer?: StringFilter<"Feedback"> | string
+    reviewerId?: StringFilter<"Feedback"> | string
+    reviewerName?: StringFilter<"Feedback"> | string
     comment?: StringFilter<"Feedback"> | string
     status?: StringFilter<"Feedback"> | string
     createdAt?: DateTimeFilter<"Feedback"> | Date | string
@@ -7270,9 +7537,12 @@ export namespace Prisma {
     reviewId: string
     title: string
     description?: string | null
-    creator: string
-    reviewers?: ReviewCreatereviewersInput | string[]
+    creatorId: string
+    creatorName: string
+    reviewerIds?: ReviewCreatereviewerIdsInput | string[]
+    reviewerNames?: ReviewCreatereviewerNamesInput | string[]
     channel: string
+    channelName?: string | null
     client: string
     url?: string | null
     status: string
@@ -7286,9 +7556,12 @@ export namespace Prisma {
     reviewId: string
     title: string
     description?: string | null
-    creator: string
-    reviewers?: ReviewCreatereviewersInput | string[]
+    creatorId: string
+    creatorName: string
+    reviewerIds?: ReviewCreatereviewerIdsInput | string[]
+    reviewerNames?: ReviewCreatereviewerNamesInput | string[]
     channel: string
+    channelName?: string | null
     client: string
     url?: string | null
     status: string
@@ -7317,9 +7590,12 @@ export namespace Prisma {
     reviewId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    creator?: StringFieldUpdateOperationsInput | string
-    reviewers?: ReviewUpdatereviewersInput | string[]
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
+    reviewerIds?: ReviewUpdatereviewerIdsInput | string[]
+    reviewerNames?: ReviewUpdatereviewerNamesInput | string[]
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: StringFieldUpdateOperationsInput | string
     url?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -7333,9 +7609,12 @@ export namespace Prisma {
     reviewId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    creator?: StringFieldUpdateOperationsInput | string
-    reviewers?: ReviewUpdatereviewersInput | string[]
+    creatorId?: StringFieldUpdateOperationsInput | string
+    creatorName?: StringFieldUpdateOperationsInput | string
+    reviewerIds?: ReviewUpdatereviewerIdsInput | string[]
+    reviewerNames?: ReviewUpdatereviewerNamesInput | string[]
     channel?: StringFieldUpdateOperationsInput | string
+    channelName?: NullableStringFieldUpdateOperationsInput | string | null
     client?: StringFieldUpdateOperationsInput | string
     url?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
@@ -7346,14 +7625,16 @@ export namespace Prisma {
 
   export type FeedbackCreateManyReviewInput = {
     id?: number
-    reviewer: string
+    reviewerId: string
+    reviewerName: string
     comment: string
     status: string
     createdAt?: Date | string
   }
 
   export type FeedbackUpdateWithoutReviewInput = {
-    reviewer?: StringFieldUpdateOperationsInput | string
+    reviewerId?: StringFieldUpdateOperationsInput | string
+    reviewerName?: StringFieldUpdateOperationsInput | string
     comment?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7361,7 +7642,8 @@ export namespace Prisma {
 
   export type FeedbackUncheckedUpdateWithoutReviewInput = {
     id?: IntFieldUpdateOperationsInput | number
-    reviewer?: StringFieldUpdateOperationsInput | string
+    reviewerId?: StringFieldUpdateOperationsInput | string
+    reviewerName?: StringFieldUpdateOperationsInput | string
     comment?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7369,7 +7651,8 @@ export namespace Prisma {
 
   export type FeedbackUncheckedUpdateManyWithoutReviewInput = {
     id?: IntFieldUpdateOperationsInput | number
-    reviewer?: StringFieldUpdateOperationsInput | string
+    reviewerId?: StringFieldUpdateOperationsInput | string
+    reviewerName?: StringFieldUpdateOperationsInput | string
     comment?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

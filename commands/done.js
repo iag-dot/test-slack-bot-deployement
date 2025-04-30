@@ -26,8 +26,18 @@ async function handleDoneCommand({ command, respond, client, logger, isDM = fals
       return;
     }
     
+    // Get user information for completer
+    let userName = "Unknown User";
+    try {
+      const userInfo = await client.users.info({ user: command.user_id });
+      userName = userInfo.user.real_name || userInfo.user.name;
+    } catch (error) {
+      logger.error(`Error fetching user info for ${command.user_id}:`, error);
+      // Continue with unknown user name
+    }
+    
     // Mark the task as done
-    const updatedTask = await taskService.markTaskAsDone(task.taskId, command.user_id);
+    const updatedTask = await taskService.markTaskAsDone(task.taskId, command.user_id, userName);
     
     if (!updatedTask) {
       await respond({
@@ -81,14 +91,14 @@ async function handleDoneCommand({ command, respond, client, logger, isDM = fals
     }
     
     // Notify task creator if different from completer
-    if (updatedTask.creator !== command.user_id) {
+    if (updatedTask.creatorId !== command.user_id) {
       try {
         await client.chat.postMessage({
-          channel: updatedTask.creator,
+          channel: updatedTask.creatorId,
           blocks,
-          text: `Task "${updatedTask.title}" assigned to <@${updatedTask.assignee}> has been completed.`
+          text: `Task "${updatedTask.title}" assigned to <@${updatedTask.assigneeId}> has been completed.`
         });
-        logger.info(`Notification sent to task creator ${updatedTask.creator}`);
+        logger.info(`Notification sent to task creator ${updatedTask.creatorId}`);
       } catch (error) {
         logger.error(`Error notifying task creator: ${error}`);
       }

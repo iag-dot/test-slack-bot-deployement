@@ -28,6 +28,36 @@ async function handleAssignCommand({ command, respond, client, logger, isDM = fa
       return;
     }
     
+    // Get user information for assignee
+    let assigneeName = "Unknown User";
+    try {
+      const userInfo = await client.users.info({ user: args.userId });
+      assigneeName = userInfo.user.real_name || userInfo.user.name;
+    } catch (error) {
+      logger.error(`Error fetching user info for ${args.userId}:`, error);
+      // Continue with unknown user name
+    }
+    
+    // Get user information for creator
+    let creatorName = "Unknown User";
+    try {
+      const creatorInfo = await client.users.info({ user: command.user_id });
+      creatorName = creatorInfo.user.real_name || creatorInfo.user.name;
+    } catch (error) {
+      logger.error(`Error fetching user info for ${command.user_id}:`, error);
+      // Continue with unknown user name
+    }
+    
+    // Get channel name
+    let channelName = null;
+    try {
+      const channelInfo = await client.conversations.info({ channel: command.channel_id });
+      channelName = channelInfo.channel.name;
+    } catch (error) {
+      logger.error(`Error fetching channel info for ${command.channel_id}:`, error);
+      // Continue without channel name
+    }
+    
     // Get user's existing tasks
     const existingTasks = await taskService.getUserPendingTasks(args.userId);
     
@@ -52,10 +82,13 @@ async function handleAssignCommand({ command, respond, client, logger, isDM = fa
       team,
       priority,
       args.userId,
+      assigneeName,
       args.title,
       args.description || '',
       command.user_id,
+      creatorName,
       command.channel_id,
+      channelName,
       args.client,
       args.urgent,
       args.deadline

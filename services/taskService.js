@@ -8,8 +8,8 @@ function init(prismaClient) {
 }
 
 // Task Management Functions
-async function createTask(team, priority, assignee, title, description, creator, channel, client, isUrgent = false, deadline = null) {
-  console.log(`Creating task: team=${team}, priority=${priority}, assignee=${assignee}, isUrgent=${isUrgent}, custom deadline=${deadline}`);
+async function createTask(team, priority, assigneeId, assigneeName, title, description, creatorId, creatorName, channel, channelName, client, isUrgent = false, deadline = null) {
+  console.log(`Creating task: team=${team}, priority=${priority}, assigneeId=${assigneeId}, assigneeName=${assigneeName}, isUrgent=${isUrgent}, custom deadline=${deadline}`);
   
   // Calculate deadline based on priority if not provided
   let taskDeadline;
@@ -43,9 +43,12 @@ async function createTask(team, priority, assignee, title, description, creator,
         description,
         team,
         priority: isUrgent ? 'urgent' : priority,
-        assignee,
-        creator,
+        assigneeId,
+        assigneeName,
+        creatorId,
+        creatorName,
         channel,
+        channelName,
         client,
         createdAt: new Date(),
         deadline: taskDeadline,
@@ -63,12 +66,12 @@ async function createTask(team, priority, assignee, title, description, creator,
   }
 }
 
-async function getUserPendingTasks(assignee) {
-  console.log(`Getting pending tasks for user: ${assignee}`);
+async function getUserPendingTasks(assigneeId) {
+  console.log(`Getting pending tasks for user: ${assigneeId}`);
   try {
     const tasks = await prisma.task.findMany({
       where: {
-        assignee,
+        assigneeId,
         status: {
           not: 'completed'
         }
@@ -79,16 +82,16 @@ async function getUserPendingTasks(assignee) {
       ]
     });
     
-    console.log(`Found ${tasks.length} pending tasks for user ${assignee}`);
+    console.log(`Found ${tasks.length} pending tasks for user ${assigneeId}`);
     return tasks;
   } catch (error) {
-    console.error(`Error fetching tasks for user ${assignee}:`, error);
+    console.error(`Error fetching tasks for user ${assigneeId}:`, error);
     return [];
   }
 }
 
-async function getTaskByDescription(description, assignee = null) {
-  console.log(`Looking for task with description like: ${description}, assignee: ${assignee || 'any'}`);
+async function getTaskByDescription(description, assigneeId = null) {
+  console.log(`Looking for task with description like: ${description}, assigneeId: ${assigneeId || 'any'}`);
   
   const where = {
     OR: [
@@ -107,8 +110,8 @@ async function getTaskByDescription(description, assignee = null) {
     ]
   };
   
-  if (assignee) {
-    where.assignee = assignee;
+  if (assigneeId) {
+    where.assigneeId = assigneeId;
   }
   
   try {
@@ -138,8 +141,8 @@ async function getTasksList(filters = {}) {
   if (filters.priority) {
     where.priority = filters.priority;
   }
-  if (filters.assignee) {
-    where.assignee = filters.assignee;
+  if (filters.assigneeId) {
+    where.assigneeId = filters.assigneeId;
   }
   if (filters.status) {
     where.status = filters.status;
@@ -149,6 +152,25 @@ async function getTasksList(filters = {}) {
   }
   if (filters.channel) {
     where.channel = filters.channel;
+  }
+  
+  // Date-based filters
+  if (filters.completedSince) {
+    where.completedAt = {
+      gte: new Date(filters.completedSince)
+    };
+  }
+  
+  if (filters.createdSince) {
+    where.createdAt = {
+      gte: new Date(filters.createdSince)
+    };
+  }
+  
+  if (filters.dueBefore) {
+    where.deadline = {
+      lte: new Date(filters.dueBefore)
+    };
   }
   
   try {
@@ -168,8 +190,8 @@ async function getTasksList(filters = {}) {
   }
 }
 
-async function markTaskAsDone(taskId, userId) {
-  console.log(`Marking task as done: ${taskId} by user ${userId}`);
+async function markTaskAsDone(taskId, completedById, completedByName) {
+  console.log(`Marking task as done: ${taskId} by user ${completedById} (${completedByName})`);
   try {
     const task = await prisma.task.update({
       where: {
@@ -177,7 +199,9 @@ async function markTaskAsDone(taskId, userId) {
       },
       data: {
         status: 'completed',
-        completedAt: new Date()
+        completedAt: new Date(),
+        completedById,
+        completedByName
       }
     });
     
@@ -216,12 +240,12 @@ async function sendTaskReminders(client) {
       try {
         // Send reminder to assignee
         await client.chat.postMessage({
-          channel: task.assignee,
+          channel: task.assigneeId,
           text: `Reminder: Task "${task.title}" is due within the next hour`,
           blocks: formatReminderMessage(task)
         });
         
-        console.log(`Sent reminder for task ${task.taskId} to user ${task.assignee}`);
+        console.log(`Sent reminder for task ${task.taskId} to user ${task.assigneeId}`);
         
         // Mark reminder as sent
         await prisma.task.update({
@@ -281,7 +305,7 @@ function formatTaskForDisplay(task) {
          `*Priority:* ${priorityIcon} ${priority}\n` +
          `*Team:* ${teamName}\n` +
          `${clientInfo}` +
-         `*Assigned to:* <@${task.assignee}>\n` +
+         `*Assigned to:* <@${task.assigneeId}> (${task.assigneeName})\n` +
          `*Due:* ${formattedDeadline}\n` +
          `*Status:* ${statusDisplay}`;
 }
@@ -336,7 +360,7 @@ function formatAssignmentMessage(task, existingTasks = []) {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: `*Current Tasks for <@${task.assignee}>:*\n${formatExistingTasksList(existingTasks)}`
+        text: `*Current Tasks for <@${task.assigneeId}>:*\n${formatExistingTasksList(existingTasks)}`
       }
     });
   }
@@ -404,7 +428,7 @@ function formatDMNotification(task) {
 }
 
 // Format completion notification
-function formatCompletionMessage(task, completedByUserId) {
+function formatCompletionMessage(task, completedById) {
   const blocks = [
     {
       type: "header",
@@ -426,7 +450,7 @@ function formatCompletionMessage(task, completedByUserId) {
       elements: [
         {
           type: "mrkdwn",
-          text: `Completed by <@${completedByUserId}> on ${formatDate(new Date())}`
+          text: `Completed by <@${completedById}> (${task.completedByName || 'Unknown'}) on ${formatDate(new Date())}`
         }
       ]
     }
@@ -441,8 +465,8 @@ function formatTaskList(tasks, filters = {}) {
   
   // Header
   let headerText = "Task List";
-  if (filters.assignee) {
-    headerText = `Tasks for <@${filters.assignee}>`;
+  if (filters.assigneeId) {
+    headerText = `Tasks for <@${filters.assigneeId}>`;
   } else if (filters.team) {
     headerText = `${filters.team.charAt(0).toUpperCase() + filters.team.slice(1)} Team Tasks`;
   } else if (filters.client) {
@@ -479,7 +503,7 @@ function formatTaskList(tasks, filters = {}) {
     const filterDescriptions = [];
     if (filters.team) filterDescriptions.push(`Team: ${filters.team}`);
     if (filters.priority) filterDescriptions.push(`Priority: ${filters.priority}`);
-    if (filters.assignee) filterDescriptions.push(`Assignee: <@${filters.assignee}>`);
+    if (filters.assigneeId) filterDescriptions.push(`Assignee: <@${filters.assigneeId}>`);
     if (filters.status) filterDescriptions.push(`Status: ${filters.status}`);
     if (filters.client) filterDescriptions.push(`Client: ${filters.client}`);
     
@@ -586,66 +610,6 @@ function formatReminderMessage(task) {
   
   return blocks;
 }
-
-async function getTasksList(filters = {}) {
-    console.log('Getting tasks list with filters:', filters);
-    const where = {};
-    
-    // Apply standard filters if provided
-    if (filters.team) {
-      where.team = filters.team;
-    }
-    if (filters.priority) {
-      where.priority = filters.priority;
-    }
-    if (filters.assignee) {
-      where.assignee = filters.assignee;
-    }
-    if (filters.status) {
-      where.status = filters.status;
-    }
-    if (filters.client) {
-      where.client = filters.client;
-    }
-    if (filters.channel) {
-      where.channel = filters.channel;
-    }
-    
-    // Date-based filters
-    if (filters.completedSince) {
-      where.completedAt = {
-        gte: new Date(filters.completedSince)
-      };
-    }
-    
-    if (filters.createdSince) {
-      where.createdAt = {
-        gte: new Date(filters.createdSince)
-      };
-    }
-    
-    if (filters.dueBefore) {
-      where.deadline = {
-        lte: new Date(filters.dueBefore)
-      };
-    }
-    
-    try {
-      const tasks = await prisma.task.findMany({
-        where,
-        orderBy: [
-          { status: 'asc' },
-          { priority: 'asc' },
-          { deadline: 'asc' }
-        ]
-      });
-      console.log(`Found ${tasks.length} tasks matching filters`);
-      return tasks;
-    } catch (error) {
-      console.error('Error fetching tasks list:', error);
-      return [];
-    }
-  }
 
 module.exports = {
   init,

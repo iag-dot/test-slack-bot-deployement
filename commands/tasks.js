@@ -11,12 +11,12 @@ async function handleTasksCommand({ command, respond, client, logger, isDM = fal
     
     // Default to current user's tasks if no arguments provided
     if (!text && isDM) {
-      filters.assignee = command.user_id;
+      filters.assigneeId = command.user_id;
     } else if (text.includes('@')) {
       // Extract user ID from mention
       const userId = extractUserId(text);
       if (userId) {
-        filters.assignee = userId;
+        filters.assigneeId = userId;
       }
     } else {
       // Parse other filters
@@ -52,8 +52,8 @@ async function handleTasksCommand({ command, respond, client, logger, isDM = fal
     // Format the response based on the result
     if (tasks.length === 0) {
       await respond({
-        text: filters.assignee 
-          ? `No tasks found for <@${filters.assignee}>.`
+        text: filters.assigneeId 
+          ? `No tasks found for <@${filters.assigneeId}>.`
           : 'No tasks found matching your filters.',
         response_type: 'ephemeral'
       });
