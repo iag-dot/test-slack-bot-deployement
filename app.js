@@ -2,6 +2,8 @@
 const { App } = require('@slack/bolt');
 const { PrismaClient } = require('./generated/prisma');
 const cron = require('node-cron');
+const express = require('express');
+const http = require('http');
 const taskService = require('./services/taskService');
 const reviewService = require('./services/reviewService');
 const reportService = require('./services/reportService');
@@ -35,6 +37,18 @@ const app = new App({
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN,
   logLevel: process.env.NODE_ENV === 'development' ? 'debug' : 'info'
+});
+
+// Create separate Express app for health endpoints
+const expressApp = express();
+
+// Add ping and health endpoints
+expressApp.get('/ping', (req, res) => {
+  res.status(200).send('Pong!');
+});
+
+expressApp.get('/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
 // Enhanced error handling middleware
@@ -633,13 +647,22 @@ app.error((error) => {
   console.error('Global error handler caught:', error);
 });
 
-// Start the app
+// Start the Bolt app and Express separately
 (async () => {
   try {
-    await app.start(process.env.PORT || 3000);
-    console.log('Inagiffy Bot is running');
-    console.log(`Bot runs in Socket Mode: ${app.socketMode}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    // Start the Bolt app for Slack interactions
+    await app.start();
+    console.log('Slack bot is running in Socket Mode');
+    
+    // Start Express server separately for health endpoints
+    const server = expressApp.listen(process.env.PORT || 3000, () => {
+      console.log(`Express server listening on port ${process.env.PORT || 3000}`);
+      console.log('Express routes available:');
+      console.log('  - /ping - Keep-alive endpoint');
+      console.log('  - /health - Health check endpoint');
+    });
+    
+    console.log(`Bot running in ${process.env.NODE_ENV || 'development'} environment`);
     console.log('Required scopes: app_mentions:read, chat:write, chat:write.public, commands, im:write, users:read, im:history, channels:join, channels:read, groups:read, mpim:read, im:read, reactions:write');
   } catch (error) {
     console.error('Failed to start app:', error);
